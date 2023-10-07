@@ -5,10 +5,16 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
-
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider, { type GoogleProfile } from "next-auth/providers/google";
+import FacebookProvider, {
+  type FacebookProfile,
+} from "next-auth/providers/facebook";
+import argon2 from "argon2";
 import { env } from "~/env.mjs";
-import { db } from "~/server/db";
+import { prisma } from "~/server/db";
+import { calcUsername } from "~/utils/calc";
+import { TRPCError } from "@trpc/server";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -20,15 +26,30 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
+      email: string;
+      username: string;
+      verified: boolean;
+      bio: string | null;
       // ...other properties
       // role: UserRole;
     };
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    username: string;
+    verified: boolean;
+    bio: string | null;
+    // ...other properties
+    // role: UserRole;
+  }
+}
+
+interface GoogleExtendedProfile extends GoogleProfile {
+  verified: boolean;
+}
+
+interface FacebookExtendedProfile extends FacebookProfile {
+  verified: boolean;
 }
 
 /**
@@ -38,19 +59,126 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    jwt: ({ token, user, account, profile }) => {
+      if (account) {
+        token.id = user.id;
+        (token.bio = user.bio),
+          (token.username = user.username),
+          (token.verified = user.verified);
+      }
+      return token;
+    },
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        id: token.id,
+        bio: token.bio,
+        username: token.username,
+        verified: token.verified,
       },
     }),
   },
-  adapter: PrismaAdapter(db),
+  // pages: {
+  //   signIn: "/login",
+  //   signOut: "/login",
+  //   error: "/login",
+  //   verifyRequest: "/login",
+  //   newUser: "/login",
+  // },
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60 * 30,
+    updateAge: 24 * 60 * 60,
+  },
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: {
+          label: "Email",
+          type: "text",
+          placeholder: "sloopy@acme.ca",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+          placeholder: "password",
+        },
+      },
+      async authorize(credentials) {
+        if (!credentials) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "No Credentials",
+          });
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Invalid Email or Password",
+          });
+        }
+
+        if (!user.password) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Invalid Email or Password",
+          });
+        }
+
+        const isValid = await argon2.verify(
+          user.password,
+          credentials.password,
+        );
+
+        if (!isValid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Invalid Email or Password",
+          });
+        }
+
+        user.password = null;
+
+        return user;
+      },
+    }),
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      profile: (profile: GoogleExtendedProfile) => {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          bio: null,
+          username: calcUsername(profile.email),
+          email: profile.email,
+          verified: true,
+          image: null,
+        };
+      },
+    }),
+    FacebookProvider({
+      clientId: env.FACEBOOK_CLIENT_ID,
+      clientSecret: env.FACEBOOK_CLIENT_SECRET,
+      profile: (profile: FacebookExtendedProfile) => {
+        return {
+          id: profile.id,
+          name: profile.name as string,
+          bio: null,
+          username: calcUsername(profile.email as string),
+          email: profile.email as string,
+          verified: true,
+          image: null,
+        };
+      },
     }),
     /**
      * ...add more providers here.
