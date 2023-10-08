@@ -80,7 +80,7 @@ const SignUpForm: React.FC = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8"
       >
-        <FormTitle className="font-mono">Sign Up</FormTitle>
+        <FormTitle>Sign Up</FormTitle>
         <FormField
           control={form.control}
           name="email"
@@ -127,9 +127,9 @@ const SignUpForm: React.FC = () => {
           )}
         />
         {form.formState.isSubmitting ? (
-          <ButtonLoading variant="form" size="form" type="submit" />
+          <ButtonLoading size="form" />
         ) : (
-          <Button variant="form" size="form">
+          <Button size="form" type="submit">
             Sign Up
           </Button>
         )}

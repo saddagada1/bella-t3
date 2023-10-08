@@ -15,6 +15,7 @@ import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { calcUsername } from "~/utils/calc";
 import { TRPCError } from "@trpc/server";
+import { type DefaultJWT } from "next-auth/jwt";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -29,6 +30,22 @@ declare module "next-auth" {
       email: string;
       username: string;
       verified: boolean;
+      hasStore: boolean;
+      canSell: boolean;
+      bio: string | null;
+      // ...other properties
+      // role: UserRole;
+    };
+  }
+
+  interface Token extends DefaultJWT {
+    user: DefaultSession["user"] & {
+      id: string;
+      email: string;
+      username: string;
+      verified: boolean;
+      hasStore: boolean;
+      canSell: boolean;
       bio: string | null;
       // ...other properties
       // role: UserRole;
@@ -39,6 +56,8 @@ declare module "next-auth" {
     username: string;
     verified: boolean;
     bio: string | null;
+    hasStore: boolean;
+    canSell: boolean;
     // ...other properties
     // role: UserRole;
   }
@@ -59,12 +78,30 @@ interface FacebookExtendedProfile extends FacebookProfile {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    jwt: ({ token, user, account, profile }) => {
+    jwt: async ({ token, user, account, trigger }) => {
+      if (trigger === "update") {
+        const update = await prisma.user.findUnique({
+          where: { id: token.id as string },
+        });
+        if (!update) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User Not Found",
+          });
+        }
+        (token.bio = update.bio),
+          (token.username = update.username),
+          (token.verified = update.verified),
+          (token.hasStore = update.hasStore);
+        token.canSell = update.canSell;
+      }
       if (account) {
         token.id = user.id;
         (token.bio = user.bio),
           (token.username = user.username),
           (token.verified = user.verified);
+        token.hasStore = user.hasStore;
+        token.canSell = user.canSell;
       }
       return token;
     },
@@ -76,16 +113,18 @@ export const authOptions: NextAuthOptions = {
         bio: token.bio,
         username: token.username,
         verified: token.verified,
+        hasStore: token.hasStore,
+        canSell: token.canSell,
       },
     }),
   },
-  // pages: {
-  //   signIn: "/login",
-  //   signOut: "/login",
-  //   error: "/login",
-  //   verifyRequest: "/login",
-  //   newUser: "/login",
-  // },
+  pages: {
+    signIn: "/login",
+    signOut: "/login",
+    error: "/login",
+    verifyRequest: "/login",
+    newUser: "/login",
+  },
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -161,6 +200,8 @@ export const authOptions: NextAuthOptions = {
           username: calcUsername(profile.email),
           email: profile.email,
           verified: true,
+          hasStore: false,
+          canSell: false,
           image: null,
         };
       },
@@ -176,6 +217,8 @@ export const authOptions: NextAuthOptions = {
           username: calcUsername(profile.email as string),
           email: profile.email as string,
           verified: true,
+          hasStore: false,
+          canSell: false,
           image: null,
         };
       },

@@ -8,13 +8,31 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model Example {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+enum Status {
+    not_started
+    in_progress
+    complete
+}
 
-    @@index([name])
+model Store {
+    id                String   @id @default(cuid())
+    stripeAccountId   String   @unique
+    stripeSetupStatus Status   @default(not_started)
+    firstName         String
+    lastName          String
+    line1             String
+    line2             String
+    city              String
+    province          String
+    zip               String
+    country           String
+    userId            String   @unique
+    user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+
+    @@unique([id, userId])
+    @@index([userId])
 }
 
 // Necessary for Next auth
@@ -54,11 +72,14 @@ model User {
     username      String    @unique @db.VarChar(255)
     email         String    @unique @db.VarChar(320)
     verified      Boolean   @default(false)
+    hasStore      Boolean   @default(false)
+    canSell       Boolean   @default(false)
     emailVerified DateTime?
     image         String?
     password      String?
     accounts      Account[]
     sessions      Session[]
+    store         Store?
     createdAt     DateTime  @default(now())
     updatedAt     DateTime  @updatedAt
 

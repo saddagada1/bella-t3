@@ -17,10 +17,13 @@ module.exports = {
       },
     },
     extend: {
+      fontSize: {
+        xxs: "0.65rem",
+      },
       fontFamily: {
         display: ["Neopixel"],
-        sans: ["var(--font-sans)", ...defaultTheme.fontFamily.sans],
-        mono: ["var(--font-mono)", ...defaultTheme.fontFamily.mono],
+        sans: ["var(--font-sans)", "ui-sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace"],
       },
       colors: {
         border: "hsl(var(--border))",

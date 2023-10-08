@@ -36,7 +36,7 @@ const SearchInput: React.FC = ({}) => {
               <FormControl>
                 <>
                   <div className="mr-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-foreground text-background">
-                    <Search />
+                    <Search className="h-5 w-5" />
                   </div>
                   <Input
                     placeholder="Search for items, designers, styles..."

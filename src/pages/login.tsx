@@ -72,7 +72,7 @@ const LoginForm: React.FC = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 text-right"
       >
-        <FormTitle className="font-mono">Login</FormTitle>
+        <FormTitle>Login</FormTitle>
         <FormField
           control={form.control}
           name="email"
@@ -105,9 +105,9 @@ const LoginForm: React.FC = () => {
         />
         <FormLink>Forgot Password?</FormLink>
         {form.formState.isSubmitting ? (
-          <ButtonLoading variant="form" size="form" type="submit" />
+          <ButtonLoading size="form" />
         ) : (
-          <Button variant="form" size="form">
+          <Button size="form" type="submit">
             Login
           </Button>
         )}

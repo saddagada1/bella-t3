@@ -146,10 +146,10 @@ const FormTitle = React.forwardRef<
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => {
   return (
-    <h2
+    <h1
       ref={ref}
       className={cn(
-        "scroll-m-20 border-b pb-2 text-left text-3xl font-semibold tracking-tight transition-colors first:mt-0",
+        "scroll-m-20 border-b border-input pb-2 text-left font-mono text-2xl font-semibold tracking-tight first:mt-0",
         className,
       )}
       {...props}
