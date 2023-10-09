@@ -1,6 +1,7 @@
 [
   {
-    "name": "Men",
+    "id": 1,
+    "name": "Unisex",
     "categories": [
       {
         "name": "Tops",
@@ -15,7 +16,19 @@
           "Jerseys",
           "Other"
         ],
-        "sizes": ["One Size", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "Other"]
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
       },
       {
         "name": "Bottoms",
@@ -85,17 +98,73 @@
           "Vests",
           "Other"
         ],
-        "sizes": ["One Size", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "Other"]
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
       },
       {
         "name": "Footwear",
-        "subcategories": ["Boots", "Casual Leather Shoes", "Formal Shoes", "Hi-Top Sneakers", "Low-Top Sneakers", "Sandals", "Slip Ons", "Other"],
-        "sizes": ["US 7", "US 7.5", "US 8", "US 8.5", "US 9", "US 9.5", "US 10", "US 10.5", "US 11", "US 11.5", "US 12", "US 13", "US 14", "US 15"]
+        "subcategories": [
+          "Boots",
+          "Casual Leather Shoes",
+          "Formal Shoes",
+          "Hi-Top Sneakers",
+          "Low-Top Sneakers",
+          "Sandals",
+          "Slip Ons",
+          "Other"
+        ],
+        "sizes": [
+          "US 7",
+          "US 7.5",
+          "US 8",
+          "US 8.5",
+          "US 9",
+          "US 9.5",
+          "US 10",
+          "US 10.5",
+          "US 11",
+          "US 11.5",
+          "US 12",
+          "US 13",
+          "US 14",
+          "US 15"
+        ]
       },
       {
         "name": "Formalwear",
-        "subcategories": ["Blazers", "Formal Shirting", "Formal Trousers", "Suits", "Tuxedos", "Vests", "Other"],
-        "sizes": ["One Size", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "Other"]
+        "subcategories": [
+          "Blazers",
+          "Formal Shirting",
+          "Formal Trousers",
+          "Suits",
+          "Tuxedos",
+          "Vests",
+          "Other"
+        ],
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
       },
       {
         "name": "Accessories",
@@ -111,15 +180,227 @@
           "Sunglasses",
           "Ties & Pocketsquares",
           "Other"
-        ]
+        ],
+        "sizes": ["One Size"]
       },
       {
         "name": "Jewelry",
-        "subcategories": ["Body Jewelry", "Bracelets", "Brooches", "Charms", "Cufflinks", "Earrings", "Necklaces", "Rings"]
+        "subcategories": [
+          "Body Jewelry",
+          "Bracelets",
+          "Brooches",
+          "Charms",
+          "Cufflinks",
+          "Earrings",
+          "Necklaces",
+          "Rings"
+        ],
+        "sizes": ["One Size"]
       }
     ]
   },
   {
+    "id": 2,
+    "name": "Men",
+    "categories": [
+      {
+        "name": "Tops",
+        "subcategories": [
+          "Long Sleeve T-Shirts",
+          "Polos",
+          "Shirts",
+          "T-Shirts",
+          "Sweaters & Knitwear",
+          "Sweatshirts & Hoodies",
+          "Sleeveless",
+          "Jerseys",
+          "Other"
+        ],
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
+      },
+      {
+        "name": "Bottoms",
+        "subcategories": [
+          "Casual Pants",
+          "Cropped Pants",
+          "Denim",
+          "Leggings",
+          "Overalls & Jumpsuits",
+          "Shorts",
+          "Sweatpants & Joggers",
+          "Swimwear",
+          "Other"
+        ],
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "24\"",
+          "25\"",
+          "26\"",
+          "27\"",
+          "28\"",
+          "29\"",
+          "30\"",
+          "31\"",
+          "32\"",
+          "33\"",
+          "34\"",
+          "35\"",
+          "36\"",
+          "37\"",
+          "38\"",
+          "39\"",
+          "40\"",
+          "41\"",
+          "42\"",
+          "43\"",
+          "44\"",
+          "45\"",
+          "46\"",
+          "47\"",
+          "48\"",
+          "49\"",
+          "50\"",
+          "Other"
+        ]
+      },
+      {
+        "name": "Outerwear",
+        "subcategories": [
+          "Bombers",
+          "Cloaks & Capes",
+          "Denim Jackets",
+          "Heavy Coats",
+          "Leather Jackets",
+          "Light Jackets",
+          "Parkas",
+          "Raincoats",
+          "Vests",
+          "Other"
+        ],
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
+      },
+      {
+        "name": "Footwear",
+        "subcategories": [
+          "Boots",
+          "Casual Leather Shoes",
+          "Formal Shoes",
+          "Hi-Top Sneakers",
+          "Low-Top Sneakers",
+          "Sandals",
+          "Slip Ons",
+          "Other"
+        ],
+        "sizes": [
+          "US 7",
+          "US 7.5",
+          "US 8",
+          "US 8.5",
+          "US 9",
+          "US 9.5",
+          "US 10",
+          "US 10.5",
+          "US 11",
+          "US 11.5",
+          "US 12",
+          "US 13",
+          "US 14",
+          "US 15"
+        ]
+      },
+      {
+        "name": "Formalwear",
+        "subcategories": [
+          "Blazers",
+          "Formal Shirting",
+          "Formal Trousers",
+          "Suits",
+          "Tuxedos",
+          "Vests",
+          "Other"
+        ],
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
+      },
+      {
+        "name": "Accessories",
+        "subcategories": [
+          "Bags & Luggage",
+          "Belts",
+          "Glasses",
+          "Gloves & Scarves",
+          "Hats",
+          "Watches",
+          "Wallets",
+          "Socks",
+          "Sunglasses",
+          "Ties & Pocketsquares",
+          "Other"
+        ],
+        "sizes": ["One Size"]
+      },
+      {
+        "name": "Jewelry",
+        "subcategories": [
+          "Body Jewelry",
+          "Bracelets",
+          "Brooches",
+          "Charms",
+          "Cufflinks",
+          "Earrings",
+          "Necklaces",
+          "Rings"
+        ],
+        "sizes": ["One Size"]
+      }
+    ]
+  },
+  {
+    "id": 3,
     "name": "Women",
     "categories": [
       {
@@ -140,7 +421,19 @@
           "Intimates",
           "Other"
         ],
-        "sizes": ["One Size", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "Other"]
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
       },
       {
         "name": "Bottoms",
@@ -214,11 +507,34 @@
           "Vests",
           "Other"
         ],
-        "sizes": ["One Size", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "Other"]
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
       },
       {
         "name": "Footwear",
-        "subcategories": ["Boots", "Heels", "Platforms", "Mules", "Flats", "Hi-Top Sneakers", "Low-Top Sneakers", "Sandals", "Slip Ons", "Other"],
+        "subcategories": [
+          "Boots",
+          "Heels",
+          "Platforms",
+          "Mules",
+          "Flats",
+          "Hi-Top Sneakers",
+          "Low-Top Sneakers",
+          "Sandals",
+          "Slip Ons",
+          "Other"
+        ],
         "sizes": [
           "US 5",
           "US 5.5",
@@ -239,12 +555,41 @@
       },
       {
         "name": "Dresses",
-        "subcategories": ["Mini Dresses", "Midi Dresses", "Maxi Dresses", "Gowns", "Other"],
-        "sizes": ["One Size", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "Other"]
+        "subcategories": [
+          "Mini Dresses",
+          "Midi Dresses",
+          "Maxi Dresses",
+          "Gowns",
+          "Other"
+        ],
+        "sizes": [
+          "One Size",
+          "2XS",
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL",
+          "2XL",
+          "3XL",
+          "4XL",
+          "Other"
+        ]
       },
       {
         "name": "Accessories",
-        "subcategories": ["Belts", "Glasses", "Gloves & Scarves", "Hair Accessories", "Hats", "Watches", "Socks", "Sunglasses", "Other"]
+        "subcategories": [
+          "Belts",
+          "Glasses",
+          "Gloves & Scarves",
+          "Hair Accessories",
+          "Hats",
+          "Watches",
+          "Socks",
+          "Sunglasses",
+          "Other"
+        ],
+        "sizes": ["One Size"]
       },
       {
         "name": "Bags & Luggage",
@@ -263,11 +608,21 @@
           "Toiletry Pouches",
           "Tote Bags",
           "Other"
-        ]
+        ],
+        "sizes": ["One Size"]
       },
       {
         "name": "Jewelry",
-        "subcategories": ["Body Jewelry", "Bracelets", "Brooches", "Charms", "Earrings", "Necklaces", "Rings"]
+        "subcategories": [
+          "Body Jewelry",
+          "Bracelets",
+          "Brooches",
+          "Charms",
+          "Earrings",
+          "Necklaces",
+          "Rings"
+        ],
+        "sizes": ["One Size"]
       }
     ]
   }

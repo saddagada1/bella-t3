@@ -29,7 +29,14 @@ export const env = createEnv({
     FACEBOOK_CLIENT_SECRET: z.string().min(1),
     STRIPE_CLIENT_ID: z.string().min(1),
     STRIPE_CLIENT_SECRET: z.string().min(1),
-    STRIPE_ONBOARDING_SECRET: z.string().min(1),
+    STRIPE_CONNECT_SECRET: z.string().min(1),
+    UPSTASH_REDIS_REST_URL: z.string().min(1),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+    S3_NAME: z.string().min(1),
+    S3_REGION: z.string().min(1),
+    S3_ACCESS_KEY: z.string().min(1),
+    S3_ACCESS_KEY_SECRET: z.string().min(1),
+    CLOUDFRONT_DOMAIN: z.string().min(1),
   },
 
   /**
@@ -58,7 +65,14 @@ export const env = createEnv({
     FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET,
     STRIPE_CLIENT_ID: process.env.STRIPE_CLIENT_ID,
     STRIPE_CLIENT_SECRET: process.env.STRIPE_CLIENT_SECRET,
-    STRIPE_ONBOARDING_SECRET: process.env.STRIPE_ONBOARDING_SECRET,
+    STRIPE_CONNECT_SECRET: process.env.STRIPE_CONNECT_SECRET,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    S3_NAME: process.env.S3_NAME,
+    S3_REGION: process.env.S3_REGION,
+    S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+    S3_ACCESS_KEY_SECRET: process.env.S3_ACCESS_KEY_SECRET,
+    CLOUDFRONT_DOMAIN: process.env.CLOUDFRONT_DOMAIN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

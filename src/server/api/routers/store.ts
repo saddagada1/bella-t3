@@ -7,22 +7,12 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { addressInput } from "~/utils/constants";
 import { stripe } from "~/utils/stripe";
-
-const createStoreInput = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  line1: z.string(),
-  line2: z.string(),
-  city: z.string(),
-  province: z.string(),
-  zip: z.string(),
-  country: z.string(),
-});
 
 export const storeRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(createStoreInput)
+    .input(addressInput)
     .mutation(async ({ input, ctx }) => {
       try {
         const stripeAccount = await stripe.accounts.create({

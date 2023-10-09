@@ -28,7 +28,7 @@ const connect = async (req: NextApiRequest, res: NextApiResponse) => {
       event = stripe.webhooks.constructEvent(
         buf.toString(),
         sig,
-        env.STRIPE_ONBOARDING_SECRET,
+        env.STRIPE_CONNECT_SECRET,
       );
     } catch (err) {
       console.log(`⚠️ Webhook signature verification failed.`, err);

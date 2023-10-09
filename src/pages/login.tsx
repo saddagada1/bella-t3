@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import z from "zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -83,7 +83,7 @@ const LoginForm: React.FC = () => {
                 <FormMessage />
               </div>
               <FormControl>
-                <Input placeholder="bella@acme.ca" {...field} />
+                <Input placeholder="bella@acme.ca" {...field} type="email" />
               </FormControl>
             </FormItem>
           )}

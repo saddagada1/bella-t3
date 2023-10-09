@@ -1,6 +1,7 @@
 export interface Department {
+  id: number;
   name: string;
-  categories: { name: string; subcategories: string[]; sizes?: string[] }[];
+  categories: { name: string; subcategories: string[]; sizes: string[] }[];
 }
 
 export interface Country {
@@ -35,4 +36,9 @@ export interface Condition {
 export interface Colour {
   name: string;
   code: string;
+}
+
+export interface SelectItem {
+  value: string;
+  label: string;
 }

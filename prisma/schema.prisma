@@ -8,6 +8,79 @@ generator client {
     provider = "prisma-client-js"
 }
 
+model Department {
+    id         Int        @id @db.SmallInt
+    name       String     @unique
+    categories Category[]
+    products   Product[]
+
+    @@index([name])
+}
+
+model Category {
+    id           String     @id @default(cuid())
+    name         String
+    departmentId Int        @db.SmallInt
+    department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+    products     Product[]
+
+    @@unique([name, departmentId])
+    @@index([name])
+    @@index([departmentId])
+}
+
+model Designer {
+    id       Int       @id @db.SmallInt
+    name     String
+    slug     String
+    products Product[]
+
+    @@index([name])
+    @@index([slug])
+}
+
+model Source {
+    id       String    @id @default(cuid())
+    name     String    @unique
+    products Product[]
+
+    @@index([name])
+}
+
+model Product {
+    id            String     @id @default(cuid())
+    images        String[]
+    name          String
+    description   String
+    departmentId  Int        @db.SmallInt
+    department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+    categoryId    String
+    category      Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    subcategory   String
+    condition     String
+    quantity      Int
+    size          String
+    designers     Designer[]
+    colours       String[]
+    sources       Source[]
+    eras          String[]
+    styles        String[]
+    country       String
+    shippingPrice Int
+    price         Int
+    available     Boolean    @default(true)
+    sold          Boolean    @default(false)
+    storeId       String
+    store         Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+
+    @@unique([id, storeId])
+    @@index([storeId])
+    @@index([departmentId])
+    @@index([categoryId])
+}
+
 enum Status {
     not_started
     in_progress
@@ -15,9 +88,9 @@ enum Status {
 }
 
 model Store {
-    id                String   @id @default(cuid())
-    stripeAccountId   String   @unique
-    stripeSetupStatus Status   @default(not_started)
+    id                String    @id @default(cuid())
+    stripeAccountId   String    @unique
+    stripeSetupStatus Status    @default(not_started)
     firstName         String
     lastName          String
     line1             String
@@ -26,10 +99,11 @@ model Store {
     province          String
     zip               String
     country           String
-    userId            String   @unique
-    user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    createdAt         DateTime @default(now())
-    updatedAt         DateTime @updatedAt
+    userId            String    @unique
+    user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    products          Product[]
+    createdAt         DateTime  @default(now())
+    updatedAt         DateTime  @updatedAt
 
     @@unique([id, userId])
     @@index([userId])

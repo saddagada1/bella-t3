@@ -17,7 +17,7 @@ const Title = React.forwardRef<
         onClick={() => router.back()}
         className="arrow right-0 top-0 aspect-square h-full bg-foreground transition-transform will-change-transform group-hover:-scale-x-100"
       />
-      <h1 className="flex scroll-m-20 text-4xl font-semibold tracking-tight lg:text-5xl">
+      <h1 className="flex scroll-m-20 text-3xl font-semibold tracking-tight lg:text-4xl">
         {children}
       </h1>
     </div>
