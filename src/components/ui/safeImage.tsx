@@ -1,9 +1,8 @@
 import Avatar from "boring-avatars";
 import Image from "next/image";
 import { type DetailedHTMLProps, type HTMLAttributes, useState } from "react";
-import clsx from "clsx";
-import { twMerge } from "tailwind-merge";
 import { Skeleton } from "./skeleton";
+import { cn } from "~/utils/shadcn/utils";
 
 interface LoadingImageProps {
   url: string;
@@ -28,7 +27,7 @@ const LoadingImage: React.FC<LoadingImageProps> = ({
         alt={alt}
         fill
         sizes={`${width}px`}
-        className={clsx("object-cover", !loaded && "opacity-0")}
+        className={cn("object-cover", !loaded && "opacity-0")}
         onLoadingComplete={() => setLoaded(true)}
       />
       {!loaded && <Skeleton className="absolute h-full w-full" />}
@@ -43,6 +42,7 @@ interface SafeImageProps
   width: number;
   square?: boolean;
   priority?: boolean;
+  loading?: boolean;
 }
 
 const SafeImage: React.FC<SafeImageProps> = ({
@@ -51,15 +51,23 @@ const SafeImage: React.FC<SafeImageProps> = ({
   width,
   square,
   priority,
+  loading,
   ...DetailedHTMLProps
 }) => {
   const { className, ...props } = DetailedHTMLProps;
+
+  if (!!loading) {
+    return (
+      <Skeleton
+        {...props}
+        style={{ width, height: width }}
+        className={cn("relative", className)}
+      />
+    );
+  }
+
   return (
-    <div
-      style={{ width }}
-      {...props}
-      className={twMerge("relative", className)}
-    >
+    <div style={{ width }} {...props} className={cn("relative", className)}>
       {url ? (
         <LoadingImage url={url} priority={priority} alt={alt} width={width} />
       ) : (

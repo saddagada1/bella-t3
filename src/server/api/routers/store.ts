@@ -2,11 +2,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { env } from "~/env.mjs";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { addressInput } from "~/utils/constants";
 import { stripe } from "~/utils/stripe";
 
@@ -92,8 +88,8 @@ export const storeRouter = createTRPCRouter({
       }
       const accountLink = await stripe.accountLinks.create({
         account: input.id,
-        refresh_url: `${env.NEXT_PUBLIC_DOMAIN}/store`,
-        return_url: `${env.NEXT_PUBLIC_DOMAIN}/store`,
+        refresh_url: `${env.NEXT_PUBLIC_DOMAIN}/store/settings`,
+        return_url: `${env.NEXT_PUBLIC_DOMAIN}/store/settings`,
         type: "account_onboarding",
       });
 

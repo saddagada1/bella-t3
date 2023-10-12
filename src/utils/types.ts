@@ -42,3 +42,10 @@ export interface SelectItem {
   value: string;
   label: string;
 }
+
+export interface CheckoutReference {
+  bagId: string;
+  storeId: string;
+  userId: string;
+  addressId: string;
+}

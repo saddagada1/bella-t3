@@ -106,6 +106,9 @@ export const productsRouter = createTRPCRouter({
           id: response.id,
         };
       } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Unable To Create Product",
@@ -145,12 +148,6 @@ export const productsRouter = createTRPCRouter({
         });
       }
 
-      const images = product.images.map(
-        (image) => env.CLOUDFRONT_DOMAIN + image,
-      );
-
-      product.images = images;
-
       return product;
     }),
 
@@ -175,11 +172,34 @@ export const productsRouter = createTRPCRouter({
         cursor: input.cursor ? { id: input.cursor } : undefined,
       });
 
-      products.map((product) => {
-        const images = product.images.map(
-          (image) => env.CLOUDFRONT_DOMAIN + image,
-        );
-        product.images = images;
+      let next: typeof input.cursor = undefined;
+      if (products.length > input.limit) {
+        next = products.pop()?.id;
+      }
+      return {
+        next: next,
+        items: products,
+      };
+    }),
+
+  getProducts: publicProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        cursor: z.string().optional(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const products = await ctx.prisma.product.findMany({
+        select: {
+          id: true,
+          images: true,
+          price: true,
+        },
+        skip: input.skip,
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
       });
 
       let next: typeof input.cursor = undefined;

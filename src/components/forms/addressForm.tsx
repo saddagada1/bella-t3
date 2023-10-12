@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useMemo, type FormHTMLAttributes } from "react";
+import { type UseFormReset, useForm } from "react-hook-form";
 import { z } from "zod";
-import { enabledCountries, countries } from "~/utils/constants";
+import { enabledCountries, countries, defaultCountry } from "~/utils/constants";
 import provincesCitiesJSON from "public/data/provincesCities.json";
 import { type CountryWithProvinces } from "~/utils/types";
 import { ButtonLoading, Button } from "../ui/button";
@@ -17,6 +17,7 @@ import {
   FormControl,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { cn } from "~/utils/shadcn/utils";
 
 const addressInput = z.object({
   firstName: z.string().min(1, "Required"),
@@ -29,19 +30,25 @@ const addressInput = z.object({
   country: z.string().min(1, "Required"),
 });
 
-interface AddressFormProps {
+interface AddressFormProps extends FormHTMLAttributes<HTMLFormElement> {
   title?: string;
   buttonLabel?: string;
-  onSubmit: (values: z.infer<typeof addressInput>) => void | Promise<void>;
+  onFormSubmit: (
+    values: z.infer<typeof addressInput>,
+    reset: UseFormReset<z.infer<typeof addressInput>>,
+    resetState: () => void,
+  ) => void | Promise<void>;
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
-  onSubmit,
+  onFormSubmit,
   title,
   buttonLabel,
+  ...rest
 }) => {
+  const { className, ...props } = rest;
   const [selectedCountry, setSelectedCountry] = useState(
-    enabledCountries[0]?.value ?? "CA",
+    enabledCountries[0]?.value ?? defaultCountry,
   );
   const [selectedProvince, setSelectedProvince] = useState("");
 
@@ -89,12 +96,20 @@ const AddressForm: React.FC<AddressFormProps> = ({
       });
   }, [provincesData, selectedProvince]);
 
+  const resetState = () => {
+    setSelectedCountry(enabledCountries[0]?.value ?? defaultCountry);
+    setSelectedProvince("");
+  };
+
   return (
     <Form {...form}>
       <form
+        {...props}
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8"
+        onSubmit={form.handleSubmit((values) =>
+          onFormSubmit(values, form.reset, resetState),
+        )}
+        className={cn("space-y-8 lg:w-1/2", className)}
       >
         {title && <FormTitle className="mb-8">{title}</FormTitle>}
         <FormField
@@ -171,6 +186,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                   key={selectedProvince}
                   data={citiesTowns}
                   onSelect={(item) => field.onChange(item.value)}
+                  disabled={selectedProvince === ""}
                 />
               </FormControl>
             </FormItem>
@@ -187,6 +203,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
               </div>
               <FormControl>
                 <Combobox
+                  key={selectedCountry}
                   data={provinces}
                   onSelect={(item) => {
                     field.onChange(item.value);
@@ -237,7 +254,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           )}
         />
         {form.formState.isSubmitting ? (
-          <ButtonLoading size="form" />
+          <ButtonLoading disabled size="form" />
         ) : (
           <Button size="form" type="submit">
             {buttonLabel ?? "Edit"}

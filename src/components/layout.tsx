@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div
-        className={`${sans.variable} ${mono.variable} flex h-screen w-screen flex-col font-sans`}
+        className={`${sans.variable} ${mono.variable} container flex h-screen w-screen flex-col px-0 font-sans`}
       >
         <Navbar />
         {children}

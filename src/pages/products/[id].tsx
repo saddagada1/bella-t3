@@ -1,34 +1,14 @@
-import type { NextPage } from "next";
+import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import SafeImage from "~/components/ui/safeImage";
 import { api } from "~/utils/api";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
-import { useWindowSize } from "usehooks-ts";
-import { useState } from "react";
-import { Skeleton } from "~/components/ui/skeleton";
-import { cn } from "~/utils/shadcn/utils";
-import { H1 } from "~/components/ui/typography/h1";
+import { useElementSize } from "usehooks-ts";
 import { toast } from "sonner";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "~/components/ui/form";
+import { Form } from "~/components/ui/form";
 import { Button, ButtonLoading } from "~/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import {
   Accordion,
   AccordionContent,
@@ -36,62 +16,69 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { DollarSign, Truck } from "lucide-react";
+import { ssg } from "~/utils/ssg";
+import ErrorView from "~/components/errorView";
+import { env } from "~/env.mjs";
+import { useForm } from "react-hook-form";
 
-const formSchema = z.object({
-  quantity: z.number().min(1, "Required"),
-});
-
-const AddProductToBagForm: React.FC<{ quantity: number }> = ({ quantity }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      quantity: 1,
+const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
+  const t3 = api.useContext();
+  const { mutateAsync: addToBag } = api.bags.addToBag.useMutation({
+    onMutate: async () => {
+      await t3.bags.countBagItems.cancel();
+      const previousCount = t3.bags.countBagItems.getData();
+      t3.bags.countBagItems.setData(undefined, (cachedData) => {
+        if (cachedData === undefined) return;
+        return cachedData + 1;
+      });
+      return { previousCount };
+    },
+    onError: (err, _args, ctx) => {
+      t3.bags.countBagItems.setData(undefined, () => ctx?.previousCount);
+      toast.error(err.message);
+    },
+    onSuccess: (response) => {
+      t3.bags.getUserBags.setData(undefined, (cachedData) => {
+        if (!cachedData) return;
+        const bagToUpdate = cachedData.find(
+          (prevBag) => prevBag.id === response.id,
+        );
+        if (!bagToUpdate) {
+          return [...cachedData, response];
+        }
+        return cachedData.map((cachedBag) => {
+          if (cachedBag.id === bagToUpdate.id) {
+            return response;
+          }
+          return cachedBag;
+        });
+      });
+      toast.success("Added To Bag");
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const form = useForm();
+
+  const onSubmit = async () => {
+    try {
+      await addToBag({ id });
+    } catch (error) {
+      return;
+    }
   };
+
   return (
     <Form {...form}>
       <form
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex items-center justify-between gap-8 border-b border-input pb-6"
+        className="mb-6 flex items-center justify-between gap-8 lg:w-3/4"
       >
-        <FormField
-          control={form.control}
-          name="quantity"
-          render={({ field }) => (
-            <FormItem className="w-1/4 shrink-0">
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(parseInt(value));
-                }}
-                defaultValue={field.value.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                </FormControl>
-                <FormMessage />
-                <SelectContent>
-                  {Array.from({ length: quantity }).map((_, index) => (
-                    <SelectItem key={index} value={(index + 1).toString()}>
-                      {index + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
-        />
-        <div className="w-1/2 shrink-0">
+        <div className="w-1/2 lg:w-1/3">
           {form.formState.isSubmitting ? (
-            <ButtonLoading size="form" />
+            <ButtonLoading disabled className="w-full lg:h-12" />
           ) : (
-            <Button size="form" type="submit">
+            <Button type="submit" className="w-full lg:h-12">
               Add To Bag
             </Button>
           )}
@@ -102,153 +89,161 @@ const AddProductToBagForm: React.FC<{ quantity: number }> = ({ quantity }) => {
 };
 
 const Product: NextPage = ({}) => {
-  const { width } = useWindowSize();
-  const [imagesReady, setImagesReady] = useState(false);
   const router = useRouter();
-  const { data: product, error: productError } = api.products.get.useQuery({
-    id: router.query.id as string,
-  });
+  const [imageContainer, { width }] = useElementSize();
+  const { data: product, error: productError } = api.products.get.useQuery(
+    {
+      id: router.query.id as string,
+    },
+    { enabled: typeof router.query.id === "string" },
+  );
 
   if (productError) {
-    toast.error("Error: Something Went Wrong");
+    toast.error(productError.message);
+  }
+
+  if (!product) {
+    return <ErrorView />;
   }
 
   return (
     <>
       <Head>
-        <title>Bella - {product?.name ?? "Product"}</title>
+        <title>Bella - {product.name ?? "Product"}</title>
       </Head>
-      <main className="flex flex-1 flex-col">
-        <div className="relative aspect-square w-screen shrink-0">
-          {product && (
-            <Splide
-              onVisible={() => setImagesReady(true)}
-              aria-label="Product Images"
-            >
-              {product.images.map((image, index) => (
-                <SplideSlide key={index}>
-                  <SafeImage
-                    url={image}
-                    alt={`Product image ${index + 1}`}
-                    width={width}
-                    className="relative aspect-square"
-                    square
-                    priority
-                  />
-                </SplideSlide>
-              ))}
-            </Splide>
-          )}
-          <Skeleton
-            className={cn(
-              "absolute z-10 aspect-square w-screen",
-              imagesReady && "hidden",
-            )}
-          />
+      <main className="flex flex-1 flex-col lg:flex-row lg:gap-8 lg:pt-10">
+        <div
+          ref={imageContainer}
+          className="relative aspect-square w-screen lg:w-1/2"
+        >
+          <Splide aria-label="Product Images">
+            {product.images.map((image, index) => (
+              <SplideSlide key={index}>
+                <SafeImage
+                  url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + image}
+                  alt={`Product image ${index + 1}`}
+                  width={width}
+                  className="aspect-square overflow-hidden lg:rounded-3xl"
+                  square
+                  priority
+                />
+              </SplideSlide>
+            ))}
+          </Splide>
         </div>
-        <div className="p-6">
-          {product ? (
-            <>
-              <H1 className="mb-2">{product.name}</H1>
-              <div className="mb-6 border-l-2 border-destructive pl-2">
-                <p className="border-l-2 border-destructive pl-2 font-mono text-sm font-semibold uppercase">
-                  {`${product.department.name} • ${product.category.name} • ${product.subcategory} • Size ${product.size} • ${product.condition} Condition`}
-                </p>
-              </div>
-              <div className="mb-10 flex items-center gap-4 font-mono text-lg font-semibold">
-                <p className="flex items-center">
+        <div className="w-full p-6 lg:p-0">
+          <h1 className="mb-4 font-mono text-2xl font-semibold leading-tight lg:text-3xl">
+            {product.name}
+          </h1>
+          <div className="mb-6 border-l-2 border-destructive pl-2 lg:w-2/3">
+            <p className="border-l-2 border-destructive pl-2 font-mono text-xs font-semibold uppercase lg:text-sm">
+              {`${product.department.name} • ${product.category.name} • ${product.subcategory} • Size ${product.size} • ${product.condition} Condition`}
+            </p>
+          </div>
+          <div className="mb-10 flex items-center gap-4 font-mono font-semibold lg:text-lg">
+            <p className="flex items-center">
+              <DollarSign className="h-5 w-5" />
+              {product.price / 100}
+            </p>
+            <p>•</p>
+            <p className="flex items-center">
+              <Truck className="mr-2 h-6 w-6" />
+              {product.shippingPrice === 0 ? (
+                <span className="uppercase text-green-600">Free</span>
+              ) : (
+                <>
                   <DollarSign className="h-5 w-5" />
-                  {product.price / 100}
-                </p>
-                <p>•</p>
-                <p className="flex items-center">
-                  <Truck className="mr-2 h-6 w-6" />
-                  {product.shippingPrice === 0 ? (
-                    <span className="uppercase text-green-600">Free</span>
-                  ) : (
-                    <>
-                      <DollarSign className="h-5 w-5" />
-                      {product.shippingPrice / 100}
-                    </>
-                  )}
-                </p>
-              </div>
-              <AddProductToBagForm quantity={100} />
-              <Accordion className="font-mono" type="single" collapsible>
-                <AccordionItem value="description">
-                  <AccordionTrigger className="uppercase">
-                    Description
-                  </AccordionTrigger>
-                  <AccordionContent>{product.description}</AccordionContent>
-                </AccordionItem>
-                {product.designers.length && (
-                  <AccordionItem value="designers">
-                    <AccordionTrigger className="uppercase">
-                      Designers
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {product.designers
-                        .map((designer) => designer.name)
-                        .join(", ")}
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-                {product.sources.length && (
-                  <AccordionItem value="sources">
-                    <AccordionTrigger className="uppercase">
-                      Sources
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {product.sources.map((source) => source.name).join(", ")}
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-                {product.styles.length && (
-                  <AccordionItem value="styles">
-                    <AccordionTrigger className="uppercase">
-                      Styles
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {product.styles.map((style) => style).join(", ")}
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-                {product.eras.length && (
-                  <AccordionItem value="eras">
-                    <AccordionTrigger className="uppercase">
-                      Eras
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {product.eras.map((era) => era).join(", ")}
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-                {product.colours.length && (
-                  <AccordionItem value="colours">
-                    <AccordionTrigger className="uppercase">
-                      colours
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {product.colours.map((colour) => colour).join(", ")}
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-              </Accordion>
-            </>
-          ) : (
-            <>
-              <Skeleton className="mb-2 h-10 w-full rounded-full" />
-              <Skeleton className="mb-6 h-10 w-5/6 rounded-full" />
-              <Skeleton className="mb-10 h-8 w-4/6 rounded-full" />
-              <div className="flex justify-between">
-                <Skeleton className="h-12 w-1/4 rounded-full" />
-                <Skeleton className="h-12 w-1/2 rounded-full" />
-              </div>
-            </>
-          )}
+                  {product.shippingPrice / 100}
+                </>
+              )}
+            </p>
+          </div>
+          <AddProductToBagForm id={product.id} />
+          <Accordion
+            className="border-t border-input font-mono"
+            type="single"
+            collapsible
+          >
+            <AccordionItem value="description">
+              <AccordionTrigger className="uppercase">
+                Description
+              </AccordionTrigger>
+              <AccordionContent>{product.description}</AccordionContent>
+            </AccordionItem>
+            {product.designers.length > 0 && (
+              <AccordionItem value="designers">
+                <AccordionTrigger className="uppercase">
+                  Designers
+                </AccordionTrigger>
+                <AccordionContent>
+                  {product.designers
+                    .map((designer) => designer.name)
+                    .join(", ")}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {product.sources.length > 0 && (
+              <AccordionItem value="sources">
+                <AccordionTrigger className="uppercase">
+                  Sources
+                </AccordionTrigger>
+                <AccordionContent>
+                  {product.sources.map((source) => source.name).join(", ")}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {product.styles.length > 0 && (
+              <AccordionItem value="styles">
+                <AccordionTrigger className="uppercase">
+                  Styles
+                </AccordionTrigger>
+                <AccordionContent>
+                  {product.styles.map((style) => style).join(", ")}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {product.eras.length > 0 && (
+              <AccordionItem value="eras">
+                <AccordionTrigger className="uppercase">Eras</AccordionTrigger>
+                <AccordionContent>
+                  {product.eras.map((era) => era).join(", ")}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {product.colours.length > 0 && (
+              <AccordionItem value="colours">
+                <AccordionTrigger className="uppercase">
+                  colours
+                </AccordionTrigger>
+                <AccordionContent>
+                  {product.colours.map((colour) => colour).join(", ")}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
         </div>
       </main>
     </>
   );
 };
+
 export default Product;
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const id = context.params?.id;
+  if (typeof id !== "string")
+    return {
+      notFound: true,
+    };
+
+  await ssg.products.get.prefetch({ id });
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+  };
+};
+
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
+};

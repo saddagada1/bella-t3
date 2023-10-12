@@ -45,9 +45,9 @@ const StoreSettings: NextPage = ({}) => {
       <Head>
         <title>Bella - Store Settings</title>
       </Head>
-      <main className="flex flex-1 flex-col px-6 py-4">
-        <FormTitle>Payments</FormTitle>
-        <div className="mb-8 mt-4">
+      <main className="flex flex-1 flex-col justify-center px-6 py-4 text-center lg:items-center lg:px-0 lg:py-8">
+        <FormTitle className="lg:w-1/2">Payments</FormTitle>
+        <div className="mb-8 mt-4 lg:w-1/2">
           {!store ||
           (store.stripeSetupStatus === "not_started" && !accountLink) ? (
             <Skeleton className="h-12 w-full rounded-full" />
@@ -72,7 +72,7 @@ const StoreSettings: NextPage = ({}) => {
         </div>
         <AddressForm
           title="Billing Address"
-          onSubmit={async (values) => {
+          onFormSubmit={async (values) => {
             try {
               await createStore(values);
               await updateSession();

@@ -21,14 +21,14 @@ const CreateStore: NextPage = ({}) => {
         <AddressForm
           title="Create Store"
           buttonLabel="Create"
-          onSubmit={async (values) => {
+          onFormSubmit={async (values) => {
             try {
               const response = await createStore(values);
               t3.store.get.setData(undefined, () => {
                 return response;
               });
               await updateSession();
-              toast("Please link your account with Stripe to proceed.");
+              toast.success("Please link your account with Stripe to proceed.");
               void router.replace("/store/settings");
             } catch (error) {
               if (error instanceof TRPCClientError) {

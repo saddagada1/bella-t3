@@ -19,10 +19,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
 }) => {
   const { className, ...props } = DetailedHTMLProps;
   return (
-    <div
-      {...props}
-      className={cn("flex w-full flex-col items-center gap-4", className)}
-    >
+    <div {...props} className={cn("space-y-4", className)}>
       {children}
       {hasNext &&
         (fetchingNext ? (

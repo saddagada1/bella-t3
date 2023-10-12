@@ -121,7 +121,7 @@ const Combobox: React.FC<ComboboxProps> = ({
         <PopoverContent
           style={{ width }}
           className={cn(
-            "overflow-hidden rounded-2xl p-0",
+            "overflow-hidden rounded-2xl p-0 lg:rounded-3xl",
             noSearch ? "h-[175px]" : "h-[200px]",
           )}
         >
@@ -144,7 +144,7 @@ const Combobox: React.FC<ComboboxProps> = ({
             <CommandGroup className="no-scrollbar overflow-y-scroll">
               {filteredData?.map((item, index) => (
                 <CommandItem
-                  className={cn(noSearch && "rounded-xl")}
+                  className={cn(noSearch && "rounded-xl lg:rounded-2xl")}
                   disabled={
                     enabledItems
                       ? enabledItems.some(

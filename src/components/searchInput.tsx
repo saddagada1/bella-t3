@@ -1,15 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import z from "zod";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "./ui/input";
 import { Search } from "lucide-react";
+import { type FormHTMLAttributes } from "react";
+import { cn } from "~/utils/shadcn/utils";
+
+type SearchInputProps = FormHTMLAttributes<HTMLFormElement>;
 
 const formSchema = z.object({
   query: z.string(),
 });
 
-const SearchInput: React.FC = ({}) => {
+const SearchInput: React.FC<SearchInputProps> = ({ ...FormHTMLAtrributes }) => {
+  const { className, ...props } = FormHTMLAtrributes;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -26,7 +31,8 @@ const SearchInput: React.FC = ({}) => {
       <form
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={form.handleSubmit(onSubmit)}
-        className="my-2"
+        {...props}
+        className={cn("col-span-3 hidden lg:block", className)}
       >
         <FormField
           control={form.control}
@@ -35,12 +41,11 @@ const SearchInput: React.FC = ({}) => {
             <FormItem className="flex items-center space-y-0">
               <FormControl>
                 <>
-                  <div className="mr-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-foreground text-background">
-                    <Search className="h-5 w-5" />
+                  <div className="mr-2 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                    <Search className="h-4 w-4" />
                   </div>
                   <Input
                     placeholder="Search for items, designers, styles..."
-                    className="h-12"
                     {...field}
                   />
                 </>

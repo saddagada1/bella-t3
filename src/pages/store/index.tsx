@@ -24,7 +24,7 @@ const Store: NextPage = ({}) => {
         <title>Bella - Store</title>
       </Head>
       <main className="flex flex-1 flex-col px-6 py-4">
-        <Title className="mb-4">Store</Title>
+        <Title title="Store" className="mb-4" />
       </main>
     </>
   );

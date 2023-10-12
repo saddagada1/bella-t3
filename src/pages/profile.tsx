@@ -1,25 +1,43 @@
-import { ListPlus } from "lucide-react";
+import { ListPlus, Settings } from "lucide-react";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { useElementSize } from "usehooks-ts";
+import { toast } from "sonner";
 import ScrollPagination from "~/components/scrollPagination";
 import { Button } from "~/components/ui/button";
 import SafeImage from "~/components/ui/safeImage";
 import { Title } from "~/components/ui/typography/title";
-import { ValueLabel } from "~/components/ui/typography/valueLabel";
 import { api } from "~/utils/api";
 import { paginationLimit } from "~/utils/constants";
+import { UserProfileCard } from "../components/userProfileCard";
+import ProductsGrid from "~/components/productsGrid";
+import { useWindowSize } from "usehooks-ts";
+import defaultTheme from "tailwindcss/defaultTheme";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { ValueLabel } from "~/components/ui/typography/valueLabel";
+import ErrorView from "~/components/errorView";
+import LoadingView from "~/components/loadingView";
+
+const UserTabs = () => {
+  return (
+    <Tabs defaultValue="all">
+      <TabsList>
+        <TabsTrigger value="all">All</TabsTrigger>
+        <TabsTrigger value="selling">Selling</TabsTrigger>
+        <TabsTrigger value="sold">Sold</TabsTrigger>
+        <TabsTrigger value="reviews">Reviews</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+};
 
 const Profile: NextPage = ({}) => {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [container, { width }] = useElementSize();
-  const [profileImageContainer, { height }] = useElementSize();
+  const { data: session, status: sessionStatus } = useSession();
+  const { width } = useWindowSize();
   const {
     data: products,
+    isLoading: fetchingProducts,
     isFetching: fetchingNext,
     error: productsError,
     fetchNextPage,
@@ -33,112 +51,79 @@ const Profile: NextPage = ({}) => {
     },
   );
 
+  if (fetchingProducts || sessionStatus === "loading") {
+    return <LoadingView />;
+  }
+
+  if (!products || productsError) {
+    toast.error(productsError?.message ?? "Something Went Wrong");
+    return <ErrorView />;
+  }
+
   return (
     <>
       <Head>
         <title>Bella - Your Profile</title>
       </Head>
-      <main className="mt-2 flex flex-1 flex-col px-4">
-        <Title className="mb-4">Profile</Title>
-        <div ref={container} className="mb-8 flex gap-4">
-          <div ref={profileImageContainer}>
-            <SafeImage
-              url={session?.user.image}
-              alt={session?.user.username ?? "profile"}
-              width={height}
-              className="relative aspect-square overflow-hidden rounded-full"
+      <main className="flex-1 px-4 pt-2 lg:px-0 lg:py-8">
+        <Title title={session?.user.name ?? "Profile"} className="mb-4">
+          <div className="flex w-fit justify-end gap-2">
+            <Button asChild variant="outline">
+              <Link href="/products/create">
+                <p className="mr-2 hidden lg:block">New Product</p>
+                <ListPlus className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/settings">
+                <p className="mr-2 hidden lg:block">Edit Profile</p>
+                <Settings className="h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </Title>
+        <div className="mb-4 flex gap-4 border-b border-input pb-4 lg:gap-8">
+          <SafeImage
+            url={session?.user.image}
+            alt={session?.user.username ?? "profile"}
+            width={width > parseFloat(defaultTheme.screens.lg) ? 200 : 125}
+            className="aspect-square shrink-0 overflow-hidden rounded-full"
+          />
+          <div className="flex flex-1 flex-col justify-center gap-10">
+            <UserProfileCard
+              username={session?.user.username}
+              products={0}
+              sales={0}
+              followers={0}
+              following={0}
             />
-          </div>
-          <div className="flex-1 text-center font-mono text-sm text-foreground">
-            <div className="grid grid-cols-8">
-              <div className="col-span-5 space-y-1 border-r border-input">
-                <ValueLabel>Username</ValueLabel>
-                <p>@{session?.user.username}</p>
-              </div>
-              <div className="col-span-3 space-y-1 pl-2">
-                <ValueLabel>Products</ValueLabel>
-                <p>0</p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-8 border-t border-input pt-4">
-              <div className="col-span-2 space-y-1 border-r border-input">
-                <ValueLabel>Sales</ValueLabel>
-                <p>0</p>
-              </div>
-              <Link
-                href="/followers"
-                className="col-span-3 space-y-1 border-r border-input pl-2"
-              >
-                <ValueLabel>Followers</ValueLabel>
-                <p>0</p>
-              </Link>
-              <Link href="/following" className="col-span-3 space-y-1 pl-2">
-                <ValueLabel>Following</ValueLabel>
-                <p>0</p>
-              </Link>
+            <div className="hidden lg:block">
+              <UserTabs />
             </div>
           </div>
         </div>
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <Button variant="secondary" asChild className="col-span-2 h-12">
-            <Link href="/settings">Edit Profile</Link>
-          </Button>
-          <Button variant="secondary" asChild className="h-12">
-            <Link href="/products/create">
-              New
-              <ListPlus className="ml-2 h-5 w-5 flex-shrink-0" />
-            </Link>
-          </Button>
-        </div>
-        {products && (
-          <ScrollPagination
-            onClickNext={() => void fetchNextPage()}
-            hasNext={!!hasNextPage}
-            fetchingNext={fetchingNext}
-          >
-            <div className="grid w-full grid-flow-row grid-cols-3 gap-2">
-              {products.pages
-                .flatMap((page) => page.items)
-                .map((product, index) => (
-                  <button
-                    key={index}
-                    onClick={() => void router.push(`/products/${product.id}`)}
-                  >
-                    <SafeImage
-                      url={product.images[0]}
-                      alt="Product Image"
-                      width={(width - 16) / 3}
-                      square
-                      className="relative h-full overflow-hidden rounded-2xl"
-                    />
-                  </button>
-                ))}
-              <SafeImage
-                url={undefined}
-                alt="Product Image"
-                width={(width - 16) / 3}
-                square
-                className="relative h-full overflow-hidden rounded-2xl"
-              />
-              <SafeImage
-                url={undefined}
-                alt="Produage"
-                width={(width - 16) / 3}
-                square
-                className="relative h-full overflow-hidden rounded-2xl"
-              />
-              <SafeImage
-                url={undefined}
-                alt="Prodaduage"
-                width={(width - 16) / 3}
-                square
-                className="relative h-full overflow-hidden rounded-2xl"
-              />
-            </div>
-          </ScrollPagination>
+        {session?.user.bio && (
+          <div className="mb-4 border-b border-input pb-4">
+            <ValueLabel className="ml-0 lg:ml-0">About</ValueLabel>
+            <p className="font-mono text-sm lg:text-xl">{session.user.bio}</p>
+          </div>
         )}
+        <div className="mb-4 lg:hidden">
+          <UserTabs />
+        </div>
+        <ScrollPagination
+          onClickNext={() => void fetchNextPage()}
+          hasNext={!!hasNextPage}
+          fetchingNext={fetchingNext}
+          className="h-full"
+        >
+          <ProductsGrid
+            products={products.pages.flatMap((page) => page.items)}
+          />
+        </ScrollPagination>
       </main>
     </>
   );
 };
+
 export default Profile;

@@ -1,4 +1,5 @@
 import countriesJSON from "public/data/countries.json";
+import currenciesJSON from "public/data/currencyCodes.json";
 import departmentsJSON from "public/data/departments.json";
 import conditionsJSON from "public/data/conditions.json";
 import designersJSON from "public/data/designers.json";
@@ -20,6 +21,10 @@ export const countries = (countriesJSON as Country[]).map((country) => {
 });
 
 export const enabledCountries = [{ value: "CA", label: "Canada" }];
+
+export const defaultCountry = "CA";
+
+export const currencies: Record<string, string> = currenciesJSON;
 
 export const departments = departmentsJSON as Department[];
 
@@ -56,7 +61,6 @@ export const productInput = z.object({
   category: z.string().min(1, "Required"),
   subcategory: z.string().min(1, "Required"),
   condition: z.string().min(1, "Required"),
-  quantity: z.number().min(1, "Required"),
   size: z.string().min(1, "Required"),
   designers: z.array(z.string()),
   colours: z.array(z.string()),
@@ -69,5 +73,7 @@ export const productInput = z.object({
   available: z.boolean().optional(),
   sold: z.boolean().optional(),
 });
+
+export const applicationFeePercentage = 0.08;
 
 export const paginationLimit = 50;

@@ -8,6 +8,111 @@ generator client {
     provider = "prisma-client-js"
 }
 
+model OrderItem {
+    id            String   @id @default(cuid())
+    images        String[]
+    name          String
+    description   String
+    shippingPrice Int
+    price         Int
+    productId     String
+    product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    orderId       String
+    order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    @@unique([productId, orderId])
+    @@index([productId])
+    @@index([orderId])
+}
+
+enum PurchaseStatus {
+    in_progress
+    completed
+    failed
+}
+
+model Order {
+    id            String         @id @default(cuid())
+    orderStatus   PurchaseStatus @default(in_progress)
+    paymentStatus PurchaseStatus @default(in_progress)
+    shippingTotal Int            @default(0)
+    subTotal      Int            @default(0)
+    grandTotal    Int            @default(0)
+    storeId       String
+    store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    userId        String
+    user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    addressId     String
+    address       Address        @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    orderItems    OrderItem[]
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+
+    @@unique([storeId, userId, addressId])
+    @@index([storeId])
+    @@index([userId])
+    @@index([addressId])
+}
+
+model Address {
+    id        String   @id @default(cuid())
+    firstName String
+    lastName  String
+    line1     String
+    line2     String
+    city      String
+    province  String
+    zip       String
+    country   String
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    orders    Order[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([id, userId])
+    @@index([userId])
+}
+
+model BagItem {
+    id            String   @id @default(cuid())
+    images        String[]
+    name          String
+    description   String
+    shippingPrice Int
+    price         Int
+    productId     String
+    product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    bagId         String
+    bag           Bag      @relation(fields: [bagId], references: [id], onDelete: Cascade)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    @@unique([productId, bagId])
+    @@index([productId])
+    @@index([bagId])
+}
+
+model Bag {
+    id            String    @id @default(cuid())
+    shippingTotal Int       @default(0)
+    subTotal      Int       @default(0)
+    grandTotal    Int       @default(0)
+    storeId       String
+    store         Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    userId        String
+    user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    bagItems      BagItem[]
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+
+    @@unique([storeId, userId])
+    @@index([storeId])
+    @@index([userId])
+}
+
 model Department {
     id         Int        @id @db.SmallInt
     name       String     @unique
@@ -48,17 +153,16 @@ model Source {
 }
 
 model Product {
-    id            String     @id @default(cuid())
+    id            String      @id @default(cuid())
     images        String[]
     name          String
     description   String
-    departmentId  Int        @db.SmallInt
-    department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+    departmentId  Int         @db.SmallInt
+    department    Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
     categoryId    String
-    category      Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
     subcategory   String
     condition     String
-    quantity      Int
     size          String
     designers     Designer[]
     colours       String[]
@@ -68,12 +172,13 @@ model Product {
     country       String
     shippingPrice Int
     price         Int
-    available     Boolean    @default(true)
-    sold          Boolean    @default(false)
+    sold          Boolean     @default(false)
     storeId       String
-    store         Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
-    createdAt     DateTime   @default(now())
-    updatedAt     DateTime   @updatedAt
+    store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    bagItems      BagItem[]
+    orderItems    OrderItem[]
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
 
     @@unique([id, storeId])
     @@index([storeId])
@@ -102,6 +207,8 @@ model Store {
     userId            String    @unique
     user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     products          Product[]
+    bags              Bag[]
+    orders            Order[]
     createdAt         DateTime  @default(now())
     updatedAt         DateTime  @updatedAt
 
@@ -154,6 +261,9 @@ model User {
     accounts      Account[]
     sessions      Session[]
     store         Store?
+    bags          Bag[]
+    orders        Order[]
+    addresses     Address[]
     createdAt     DateTime  @default(now())
     updatedAt     DateTime  @updatedAt
 

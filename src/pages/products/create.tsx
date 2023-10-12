@@ -21,6 +21,7 @@ import {
   conditions,
   countries,
   currencyRegex,
+  defaultCountry,
   departments,
   designers,
   enabledCountries,
@@ -74,14 +75,13 @@ const CreateProductForm: React.FC = () => {
       category: "",
       subcategory: "",
       condition: "",
-      quantity: 1,
       size: "",
       designers: [],
       colours: [],
       sources: [],
       eras: [],
       styles: [],
-      country: store?.country ?? "CA",
+      country: store?.country ?? defaultCountry,
       shippingPrice: "",
       price: "",
     },
@@ -155,7 +155,7 @@ const CreateProductForm: React.FC = () => {
       <form
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 text-right"
+        className="space-y-8 text-right lg:w-1/2"
       >
         <FormTitle onClick={() => console.log(form.getValues())}>
           New Product
@@ -367,72 +367,38 @@ const CreateProductForm: React.FC = () => {
           />
         )}
         {sizes && (
-          <div className="flex gap-2">
-            <FormField
-              control={form.control}
-              name="size"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <div className="flex items-end justify-between">
-                    <FormLabel>Size</FormLabel>
-                    <FormMessage />
-                  </div>
-                  <Select
-                    key={selectedCategory}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {sizes.map((size, index) => (
-                        <SelectItem key={index} value={size}>
-                          {size}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <div className="flex items-end justify-between">
-                    <FormLabel>Quantity</FormLabel>
-                    <FormMessage />
-                  </div>
-                  <Select
-                    key={selectedCategory}
-                    onValueChange={(value) => {
-                      field.onChange(parseInt(value));
-                    }}
-                    defaultValue={field.value.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Array.from({ length: 100 }).map((_, index) => (
-                        <SelectItem key={index} value={(index + 1).toString()}>
-                          {index + 1}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="size"
+            render={({ field }) => (
+              <FormItem className="w-1/2">
+                <div className="flex items-end justify-between">
+                  <FormLabel>Size</FormLabel>
+                  <FormMessage />
+                </div>
+                <Select
+                  key={selectedCategory}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sizes.map((size, index) => (
+                      <SelectItem key={index} value={size}>
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
         )}
         <FormField
           control={form.control}
@@ -668,7 +634,6 @@ const CreateProductForm: React.FC = () => {
                 <div className="flex h-10 w-2/5 items-center rounded-full border border-input py-2 pl-3 pr-2">
                   <DollarSign className="mr-1 h-5 w-5" />
                   <Input
-                    disabled={freeShipping}
                     className="h-fit border-none p-0 px-1 focus-visible:ring-0 focus-visible:ring-offset-0"
                     placeholder="0.00"
                     {...field}
@@ -685,7 +650,7 @@ const CreateProductForm: React.FC = () => {
           )}
         />
         {form.formState.isSubmitting ? (
-          <ButtonLoading size="form" />
+          <ButtonLoading disabled size="form" />
         ) : (
           <Button size="form" type="submit">
             Create
@@ -702,7 +667,7 @@ const CreateProduct: NextPage = ({}) => {
       <Head>
         <title>Bella - Create Product</title>
       </Head>
-      <main className="flex flex-1 flex-col px-6 py-4">
+      <main className="flex flex-1 flex-col px-6 py-4 lg:items-center lg:px-0 lg:py-8">
         <CreateProductForm />
       </main>
     </>
