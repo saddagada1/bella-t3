@@ -75,7 +75,9 @@ const direct = async (req: NextApiRequest, res: NextApiResponse) => {
 
       await prisma.order.create({
         data: {
-          ...reference,
+          storeId: reference.storeId,
+          userId: reference.userId,
+          addressId: reference.addressId,
           orderItems: {
             create: bag.bagItems.map((item) => ({
               name: item.name,
