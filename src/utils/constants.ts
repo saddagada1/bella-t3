@@ -77,3 +77,12 @@ export const productInput = z.object({
 export const applicationFeePercentage = 0.08;
 
 export const paginationLimit = 50;
+
+export const lgBreakpoint = 1024;
+
+export const notificationTemplate = {
+  newOrder: "A new order has been placed.",
+  editOrder: "A change has been made to order #{{orderId}}.",
+  cancelOrder: "Order #{{orderId}} has been cancelled. {{message}}",
+  updateOrder: "There has been an update to order #{{orderId}}. {{update}}",
+};

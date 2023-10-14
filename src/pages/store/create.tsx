@@ -17,7 +17,7 @@ const CreateStore: NextPage = ({}) => {
       <Head>
         <title>Bella - Create Store</title>
       </Head>
-      <main className="flex flex-1 flex-col px-6 py-4">
+      <main className="flex flex-1 flex-col px-6 py-4 lg:items-center lg:px-0 lg:py-8">
         <AddressForm
           title="Create Store"
           buttonLabel="Create"

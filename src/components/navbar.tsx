@@ -41,12 +41,21 @@ const SideMenu: React.FC<{ container: HTMLElement }> = ({ container }) => {
           bella
         </Link>
         {sessionStatus === "authenticated" ? (
-          <div className="my-4 flex gap-2 bg-background">
-            <Button className="flex-1" asChild variant="outline">
+          <div className="my-4 grid grid-cols-2 grid-rows-3 gap-2">
+            <Button asChild variant="outline">
               <Link href="/profile">Profile</Link>
             </Button>
-            <Button className="flex-1" asChild variant="outline">
+            <Button asChild variant="outline">
               <Link href="/store">Store</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/orders">Orders</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/settings">Settings</Link>
+            </Button>
+            <Button className="col-span-2" asChild variant="outline">
+              <Link href="/notifications">Notifications</Link>
             </Button>
           </div>
         ) : (
@@ -70,16 +79,16 @@ const SideMenu: React.FC<{ container: HTMLElement }> = ({ container }) => {
           <MenuLink href="/profile" label="Footwear" />
           <MenuLink href="/profile" label="Accessories" />
         </div>
-        <div className="my-6 flex flex-col space-y-4 text-xs uppercase text-muted-foreground">
+        {/* <div className="my-6 flex flex-col space-y-4 text-xs uppercase text-muted-foreground">
           <Link href="/profile">Help</Link>
           <Link href="/profile">FAQ</Link>
           <Link href="/profile">About</Link>
-        </div>
+        </div> */}
         {sessionStatus === "authenticated" && (
           <Button
             onClick={() => void signOut()}
             className="w-fit"
-            variant="link"
+            variant="destructive"
           >
             Sign Out
           </Button>
@@ -188,15 +197,23 @@ const Navbar: React.FC = () => {
       enabled: sessionStatus === "authenticated",
     });
 
-  if (bagsItemsCountError) {
-    toast.error(`Error: ${bagsItemsCountError.message}`);
+  const { data: notifications, error: notificationsError } =
+    api.notifications.getUserNotifications.useQuery(
+      { limit: 10 },
+      {
+        enabled: sessionStatus === "authenticated",
+      },
+    );
+
+  if (bagsItemsCountError ?? notificationsError) {
+    toast.error("Could Not Fetch Some Data");
   }
 
   return (
     <>
       <nav
         ref={menuContainer}
-        className="container fixed z-10 grid h-[73px] w-full grid-cols-4 bg-background/80 p-4 backdrop-blur-sm lg:grid-cols-6 lg:px-0"
+        className="container fixed z-20 grid h-[73px] w-full grid-cols-4 bg-background/80 p-4 backdrop-blur-sm lg:grid-cols-6 lg:px-0"
       >
         <div className="flex lg:hidden">
           <SideMenu container={menuContainer.current} />
@@ -218,12 +235,39 @@ const Navbar: React.FC = () => {
             </>
           ) : (
             <>
-              <Button className="hidden lg:flex" asChild variant="outline">
-                <Link href="/store">Store</Link>
-              </Button>
-              <Button className="hidden lg:flex" asChild variant="outline">
-                <Link href="/profile">Profile</Link>
-              </Button>
+              <HoverCard openDelay={100} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <Button className="hidden lg:flex" asChild variant="outline">
+                    <Link href="/notifications">
+                      Notifications(0)
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
+                  {notifications?.items.map((notification, index) => (
+                    <p key={index}>{notification.message}</p>
+                  ))}
+                </HoverCardContent>
+              </HoverCard>
+              <HoverCard openDelay={100} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <Button className="hidden lg:flex" asChild variant="outline">
+                    <Link href="/profile">
+                      Profile
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="flex w-fit flex-col">
+                  <Button asChild variant="ghost" className="justify-start">
+                    <Link href="/store">Store</Link>
+                  </Button>
+                  <Button asChild variant="ghost" className="justify-start">
+                    <Link href="/orders">Orders</Link>
+                  </Button>
+                </HoverCardContent>
+              </HoverCard>
               <Button variant="outline" asChild>
                 <Link href="/bag">
                   Bag(

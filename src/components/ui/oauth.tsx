@@ -5,7 +5,7 @@ import { Icons } from "./icons";
 const OAuthButtons: React.FC = ({}) => {
   return (
     <div className="relative my-8 flex w-full justify-center gap-2 border-t border-input pt-8">
-      <p className="absolute top-0 -translate-y-1/2 bg-background px-2 text-xs uppercase text-muted-foreground">
+      <p className="absolute top-0 -translate-y-1/2 bg-background px-2 font-mono text-xs uppercase text-muted-foreground">
         Or Continue With
       </p>
       <Button

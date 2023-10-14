@@ -17,7 +17,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
   following,
 }) => {
   return (
-    <div className="flex w-full flex-col text-center font-mono text-sm lg:flex-row lg:items-start lg:text-xl">
+    <div className="flex w-full flex-col text-center text-sm font-medium lg:flex-row lg:items-start lg:text-xl">
       <div className="grid flex-1 grid-cols-8">
         <div className="col-span-5 border-r border-input">
           <ValueLabel className="ml-0 lg:ml-0">Username</ValueLabel>

@@ -134,7 +134,10 @@ const FormDescription = React.forwardRef<
     <p
       ref={ref}
       id={formDescriptionId}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn(
+        "font-mono text-sm uppercase text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );
@@ -149,7 +152,7 @@ const FormTitle = React.forwardRef<
     <h1
       ref={ref}
       className={cn(
-        "scroll-m-20 border-b border-input pb-2 text-left font-mono text-2xl font-semibold tracking-tight first:mt-0",
+        "scroll-m-20 border-b border-input pb-2 text-left font-mono text-xl font-semibold uppercase tracking-tight first:mt-0 lg:text-2xl",
         className,
       )}
       {...props}
@@ -166,7 +169,7 @@ const FormLink = React.forwardRef<
     <a
       ref={ref}
       href={href}
-      className={cn("w-full font-mono text-xs underline", className)}
+      className={cn("w-full font-mono text-xs uppercase underline", className)}
       {...props}
     />
   );
@@ -189,7 +192,7 @@ const FormMessage = React.forwardRef<
       ref={ref}
       id={formMessageId}
       className={cn(
-        "font-mono text-xs font-medium leading-none text-destructive",
+        "font-mono text-xs font-medium uppercase leading-none text-destructive",
         className,
       )}
       {...props}

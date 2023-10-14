@@ -1,10 +1,25 @@
 import { TRPCError } from "@trpc/server";
+import i18next from "i18next";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { applicationFeePercentage, currencies } from "~/utils/constants";
+import {
+  applicationFeePercentage,
+  currencies,
+  notificationTemplate,
+} from "~/utils/constants";
 import { stripe } from "~/utils/stripe";
 import { type CheckoutReference } from "~/utils/types";
+
+await i18next.init({
+  lng: "en",
+  debug: true,
+  resources: {
+    en: {
+      translation: notificationTemplate,
+    },
+  },
+});
 
 export const ordersRouter = createTRPCRouter({
   createCheckoutSession: protectedProcedure
@@ -51,6 +66,7 @@ export const ordersRouter = createTRPCRouter({
         const reference: CheckoutReference = {
           bagId: bag.id,
           storeId: bag.storeId,
+          sellerId: bag.store.user.id,
           userId: ctx.session.user.id,
           addressId: input.addressId,
         };
@@ -103,7 +119,7 @@ export const ordersRouter = createTRPCRouter({
         if (error instanceof TRPCError) {
           throw error;
         }
-        console.log(error);
+        //console.log(error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Unable To Create Stripe Session",
@@ -111,26 +127,165 @@ export const ordersRouter = createTRPCRouter({
       }
     }),
 
-  getUserOrders: protectedProcedure.query(async ({ ctx }) => {
-    const orders = await ctx.prisma.order.findMany({
-      where: { userId: ctx.session.user.id },
-      include: {
-        orderItems: true,
-        store: {
-          select: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-                image: true,
-                name: true,
+  cancelOrder: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        paymentId: z.string(),
+        storeId: z.string(),
+        type: z.enum(["store", "user"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const store = await ctx.prisma.store.findUnique({
+          where: { id: input.storeId },
+        });
+        if (!store) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Store Not Found",
+          });
+        }
+        await stripe.refunds.create(
+          {
+            payment_intent: input.paymentId,
+            refund_application_fee: true,
+          },
+          {
+            stripeAccount: store.stripeAccountId,
+          },
+        );
+        if (input.type === "store") {
+          const order = await ctx.prisma.order.update({
+            where: { id: input.id, store: { userId: ctx.session.user.id } },
+            data: {
+              orderStatus: "cancelled",
+              paymentStatus: "processing_refund",
+            },
+          });
+          await ctx.prisma.notification.create({
+            data: {
+              notifierId: ctx.session.user.id,
+              notifiedId: order.userId,
+              modelId: order.id,
+              message: i18next.t("cancelOrder", {
+                orderId: order.id,
+                message: "Your refund is being processed.",
+              }),
+            },
+          });
+        } else {
+          const order = await ctx.prisma.order.update({
+            where: { id: input.id, userId: ctx.session.user.id },
+            data: {
+              orderStatus: "cancelled",
+              paymentStatus: "processing_refund",
+            },
+          });
+          await ctx.prisma.notification.create({
+            data: {
+              notifierId: ctx.session.user.id,
+              notifiedId: store.userId,
+              modelId: order.id,
+              message: i18next.t("cancelOrder", {
+                orderId: order.id,
+                message: "The refund is being processed.",
+              }),
+            },
+          });
+        }
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        //console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable To Create Stripe Session",
+        });
+      }
+    }),
+
+  getUserOrders: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        cursor: z.string().optional(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const orders = await ctx.prisma.order.findMany({
+        where: { userId: ctx.session.user.id },
+        orderBy: { createdAt: "desc" },
+        include: {
+          orderItems: true,
+          address: true,
+          store: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
+        skip: input.skip,
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
 
-    return orders;
-  }),
+      let next: typeof input.cursor = undefined;
+      if (orders.length > input.limit) {
+        next = orders.pop()?.id;
+      }
+      return {
+        next: next,
+        items: orders,
+      };
+    }),
+
+  getStoreOrders: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        cursor: z.string().optional(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const orders = await ctx.prisma.order.findMany({
+        where: { store: { userId: ctx.session.user.id } },
+        orderBy: { createdAt: "desc" },
+        include: {
+          orderItems: true,
+          address: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+              name: true,
+            },
+          },
+        },
+        skip: input.skip,
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+
+      let next: typeof input.cursor = undefined;
+      if (orders.length > input.limit) {
+        next = orders.pop()?.id;
+      }
+      return {
+        next: next,
+        items: orders,
+      };
+    }),
 });

@@ -10,7 +10,7 @@ const ValueLabel = React.forwardRef<
       ref={ref}
       {...props}
       className={cn(
-        "mb-1 ml-2 text-left font-mono !text-xxs uppercase tracking-tighter text-muted-foreground lg:mb-4 lg:ml-4 lg:!text-sm",
+        "mb-1 ml-2 text-left font-mono !text-xxs font-normal uppercase tracking-tighter text-muted-foreground lg:mb-4 lg:ml-4 lg:!text-sm",
         className,
       )}
     >

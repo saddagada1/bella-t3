@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { v4 } from "uuid";
 import { z } from "zod";
-import { env } from "~/env.mjs";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -166,6 +165,36 @@ export const productsRouter = createTRPCRouter({
           id: true,
           images: true,
           price: true,
+        },
+        skip: input.skip,
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+
+      let next: typeof input.cursor = undefined;
+      if (products.length > input.limit) {
+        next = products.pop()?.id;
+      }
+      return {
+        next: next,
+        items: products,
+      };
+    }),
+
+  getStoreProducts: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        cursor: z.string().optional(),
+        skip: z.number().optional(),
+        sold: z.boolean().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const products = await ctx.prisma.product.findMany({
+        where: { store: { userId: ctx.session.user.id }, sold: !!input.sold },
+        orderBy: {
+          updatedAt: "desc",
         },
         skip: input.skip,
         take: input.limit + 1,

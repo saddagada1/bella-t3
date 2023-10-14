@@ -1,3 +1,5 @@
+import { type OrderItem, type Order as PrismaOrder } from "@prisma/client";
+
 export interface Department {
   id: number;
   name: string;
@@ -46,6 +48,38 @@ export interface SelectItem {
 export interface CheckoutReference {
   bagId: string;
   storeId: string;
+  sellerId: string;
   userId: string;
   addressId: string;
+}
+
+export interface Address {
+  firstName: string;
+  lastName: string;
+  line1: string;
+  line2: string;
+  city: string;
+  province: string;
+  zip: string;
+  country: string;
+}
+
+export interface SimplifiedUser {
+  image?: string | null;
+  username: string;
+  name?: string | null;
+}
+
+export interface UserOrder extends PrismaOrder {
+  store: {
+    user: SimplifiedUser;
+  };
+  address: Address;
+  orderItems: OrderItem[];
+}
+
+export interface StoreOrder extends PrismaOrder {
+  user: SimplifiedUser;
+  address: Address;
+  orderItems: OrderItem[];
 }

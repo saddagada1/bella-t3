@@ -18,7 +18,7 @@ const Orders: NextPage = ({}) => {
     isLoading: fetchingOrders,
     error: ordersError,
     fetchNextPage,
-  } = api.orders.getUserOrders.useInfiniteQuery(
+  } = api.orders.getStoreOrders.useInfiniteQuery(
     {
       limit: paginationLimit,
     },
@@ -75,11 +75,12 @@ const Orders: NextPage = ({}) => {
           </Pagination>
         ) : (
           <NoContent className="mt-12 text-center">
-            You haven&apos;t placed any orders yet.
+            You haven&apos;t gotten any orders yet.
           </NoContent>
         )}
       </main>
     </>
   );
 };
+
 export default Orders;

@@ -8,6 +8,21 @@ generator client {
     provider = "prisma-client-js"
 }
 
+model Notification {
+    id         String   @id @default(cuid())
+    notifierId String
+    notifier   User     @relation("notificationActions", fields: [notifierId], references: [id], onDelete: Cascade)
+    notifiedId String
+    notified   User     @relation("notifications", fields: [notifiedId], references: [id], onDelete: Cascade)
+    modelId    String
+    message    String
+    createdAt  DateTime @default(now())
+
+    @@index([notifierId])
+    @@index([notifiedId])
+    @@index([modelId])
+}
+
 model OrderItem {
     id            String   @id @default(cuid())
     images        String[]
@@ -27,28 +42,37 @@ model OrderItem {
     @@index([orderId])
 }
 
-enum PurchaseStatus {
+enum OrderStatus {
+    in_progress
+    shipped
+    cancelled
+}
+
+enum PaymentStatus {
     in_progress
     completed
     failed
+    processing_refund
+    refunded
 }
 
 model Order {
-    id            String         @id @default(cuid())
-    orderStatus   PurchaseStatus @default(in_progress)
-    paymentStatus PurchaseStatus @default(in_progress)
-    shippingTotal Int            @default(0)
-    subTotal      Int            @default(0)
-    grandTotal    Int            @default(0)
+    id            String        @id @default(cuid())
+    orderStatus   OrderStatus   @default(in_progress)
+    paymentStatus PaymentStatus @default(in_progress)
+    paymentId     String        @unique
+    shippingTotal Int           @default(0)
+    subTotal      Int           @default(0)
+    grandTotal    Int           @default(0)
     storeId       String
-    store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    store         Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
     userId        String
-    user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     addressId     String
-    address       Address        @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    address       Address       @relation(fields: [addressId], references: [id], onDelete: Cascade)
     orderItems    OrderItem[]
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
 
     @@unique([storeId, userId, addressId])
     @@index([storeId])
@@ -186,16 +210,16 @@ model Product {
     @@index([categoryId])
 }
 
-enum Status {
+enum SetupStatus {
     not_started
     in_progress
     complete
 }
 
 model Store {
-    id                String    @id @default(cuid())
-    stripeAccountId   String    @unique
-    stripeSetupStatus Status    @default(not_started)
+    id                String      @id @default(cuid())
+    stripeAccountId   String      @unique
+    stripeSetupStatus SetupStatus @default(not_started)
     firstName         String
     lastName          String
     line1             String
@@ -204,13 +228,13 @@ model Store {
     province          String
     zip               String
     country           String
-    userId            String    @unique
-    user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId            String      @unique
+    user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     products          Product[]
     bags              Bag[]
     orders            Order[]
-    createdAt         DateTime  @default(now())
-    updatedAt         DateTime  @updatedAt
+    createdAt         DateTime    @default(now())
+    updatedAt         DateTime    @updatedAt
 
     @@unique([id, userId])
     @@index([userId])
@@ -247,25 +271,27 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    bio           String?
-    username      String    @unique @db.VarChar(255)
-    email         String    @unique @db.VarChar(320)
-    verified      Boolean   @default(false)
-    hasStore      Boolean   @default(false)
-    canSell       Boolean   @default(false)
-    emailVerified DateTime?
-    image         String?
-    password      String?
-    accounts      Account[]
-    sessions      Session[]
-    store         Store?
-    bags          Bag[]
-    orders        Order[]
-    addresses     Address[]
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
+    id                  String         @id @default(cuid())
+    name                String?
+    bio                 String?
+    username            String         @unique @db.VarChar(255)
+    email               String         @unique @db.VarChar(320)
+    verified            Boolean        @default(false)
+    hasStore            Boolean        @default(false)
+    canSell             Boolean        @default(false)
+    emailVerified       DateTime?
+    image               String?
+    password            String?
+    accounts            Account[]
+    sessions            Session[]
+    store               Store?
+    bags                Bag[]
+    orders              Order[]
+    addresses           Address[]
+    notificationActions Notification[] @relation("notificationActions")
+    notifications       Notification[] @relation("notifications")
+    createdAt           DateTime       @default(now())
+    updatedAt           DateTime       @updatedAt
 
     @@unique([id, username])
     @@unique([id, email])

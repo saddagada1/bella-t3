@@ -1,13 +1,15 @@
 import { TRPCClientError } from "@trpc/client";
-import { CircleDollarSign, DollarSign } from "lucide-react";
+import { CircleDollarSign } from "lucide-react";
 import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "sonner";
 import ErrorView from "~/components/errorView";
 import AddressForm from "~/components/forms/addressForm";
 import LoadingView from "~/components/loadingView";
+import ProductCard from "~/components/productCard";
 import {
   Accordion,
   AccordionContent,
@@ -24,10 +26,9 @@ import {
 import { FormTitle } from "~/components/ui/form";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-import SafeImage from "~/components/ui/safeImage";
 import { NoContent } from "~/components/ui/typography/noContent";
 import { Title } from "~/components/ui/typography/title";
-import { env } from "~/env.mjs";
+import { ValueLabel } from "~/components/ui/typography/valueLabel";
 import { api } from "~/utils/api";
 
 const Pay: NextPage = ({}) => {
@@ -67,7 +68,7 @@ const Pay: NextPage = ({}) => {
   }
 
   if ((!bag || bagError) ?? (!addresses || addressesError)) {
-    toast.error(bagError?.message ?? "Something Went Wrong");
+    toast.error("Something Went Wrong");
     return (
       <ErrorView
         code="500"
@@ -82,7 +83,7 @@ const Pay: NextPage = ({}) => {
       </Head>
       <main className="flex-1 px-6 py-4 lg:px-0 lg:py-8">
         <Title title="Pay" className="mb-4 w-full" />
-        <section className="flex flex-col-reverse gap-4 lg:flex-row">
+        <div className="flex flex-col-reverse gap-4 lg:flex-row">
           <Card className="h-fit lg:basis-1/3">
             <CardHeader>
               <FormTitle className="mb-4">Shipping Address</FormTitle>
@@ -91,21 +92,21 @@ const Pay: NextPage = ({}) => {
                   onValueChange={(value) => setSelectedAddress(value)}
                 >
                   {addresses.map((address, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 font-mono tracking-tighter"
-                    >
+                    <div key={index} className="flex items-center gap-2">
                       <RadioGroupItem
                         value={address.id}
                         id={`option-${index + 1}`}
                       />
-                      <Label htmlFor={`option-${index + 1}`}>{`${
-                        address.firstName
-                      } ${address.lastName}, ${address.line1}${
-                        address.line2 ? " " + address.line2 : ""
-                      }, ${address.city}, ${address.province}, ${
-                        address.country
-                      }, ${address.zip}`}</Label>
+                      <Label
+                        className="font-sans text-sm font-medium normal-case leading-normal lg:text-base"
+                        htmlFor={`option-${index + 1}`}
+                      >{`${address.firstName} ${address.lastName}, ${
+                        address.line1
+                      }${address.line2 ? " " + address.line2 : ""}, ${
+                        address.city
+                      }, ${address.province}, ${address.country}, ${
+                        address.zip
+                      }`}</Label>
                     </div>
                   ))}
                 </RadioGroup>
@@ -115,13 +116,13 @@ const Pay: NextPage = ({}) => {
             </CardHeader>
             <CardContent>
               <Accordion
-                className="border-t border-input font-mono"
+                className="border-t border-input"
                 type="single"
                 collapsible
                 defaultValue={addresses.length <= 0 ? "add address" : undefined}
               >
                 <AccordionItem value="add address">
-                  <AccordionTrigger className="uppercase">
+                  <AccordionTrigger className="pr-1 uppercase">
                     Add New Address
                   </AccordionTrigger>
                   <AccordionContent className="overflow-visible pt-4">
@@ -175,76 +176,74 @@ const Pay: NextPage = ({}) => {
               )}
             </CardFooter>
           </Card>
-          <Card className="h-fit font-mono lg:basis-2/3">
-            <CardHeader
-              onClick={() => void router.push(`/${bag.userId}`)}
-              className="flex-row items-center gap-4 space-y-0"
-            >
-              <SafeImage
-                url={bag.store.user.image}
-                alt={bag.store.user.username}
-                width={50}
-                className="aspect-square overflow-hidden rounded-full"
-              />
-              <div>
-                <p className="font-semibold">
-                  {bag.store.user.name ?? "Seller"}
-                </p>
-                <p className="text-sm">@{bag.store.user.username}</p>
-              </div>
-            </CardHeader>
-            <CardContent className="grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-2">
-              {bag.bagItems.map((item, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <SafeImage
-                    url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + item.images[0]}
-                    alt={item.name}
-                    width={100}
-                    priority
-                    square
-                    onClick={() =>
-                      void router.push(`/products/${item.productId}`)
-                    }
-                    className="aspect-square shrink-0 overflow-hidden rounded-2xl"
-                  />
-                  <div className="grid h-[100px] w-full grid-cols-6 grid-rows-4">
-                    <div className="col-span-6 row-span-3 leading-none">
-                      <p className="truncate font-semibold">{item.name}</p>
-                      <p className="truncate text-sm">{item.description}</p>
-                    </div>
-                    <p className="col-span-5 flex items-center text-lg font-semibold">
-                      <DollarSign className="h-5 w-5" />
-                      {item.price / 100}
-                    </p>
+          <Card className="h-fit lg:basis-2/3">
+            <CardHeader className="space-y-0">
+              <FormTitle className="mb-4">Summary</FormTitle>
+              <div className="flex w-full flex-col text-center text-sm font-medium lg:flex-row lg:items-start lg:text-base">
+                <div className="flex flex-1">
+                  <div className="flex-1 border-r border-input">
+                    <ValueLabel className="ml-0 lg:ml-0">Seller</ValueLabel>
+                    <Link
+                      className="hover:underline"
+                      href={`/${bag.store.user.username}`}
+                    >
+                      @{bag.store.user.username}
+                    </Link>
+                  </div>
+                  <div className="flex-1">
+                    <ValueLabel>Total Items</ValueLabel>
+                    <p>{bag.bagItems.length}</p>
                   </div>
                 </div>
-              ))}
+                <div className="mt-4 flex flex-1 border-t border-input pt-4 lg:mt-0 lg:border-l lg:border-t-0 lg:pt-0">
+                  <div className="flex-1 border-r border-input">
+                    <ValueLabel className="ml-0">Discounts</ValueLabel>
+                    <p>None</p>
+                  </div>
+                  <div className="col-span-4 flex-1">
+                    <ValueLabel>Bundles</ValueLabel>
+                    <p>None</p>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <FormTitle className="mb-4">Item(s)</FormTitle>
+              <div className="grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-2">
+                {bag.bagItems.map((item, index) => (
+                  <ProductCard key={index} item={item} />
+                ))}
+              </div>
             </CardContent>
-            <CardFooter className="flex-col gap-4 ">
-              <div className="flex w-full items-end justify-between border-b border-input pb-2">
-                <p className="text-sm uppercase">Item(s)</p>
-                <p className="flex items-center text-lg font-semibold">
-                  <DollarSign className="h-5 w-5" />
-                  {bag.subTotal / 100}
-                </p>
-              </div>
-              <div className="flex w-full items-end justify-between border-b border-input pb-2">
-                <p className="text-sm uppercase">Estimated Shipping</p>
-                <p className="flex items-center text-lg font-semibold">
-                  <DollarSign className="h-5 w-5" />
-                  {bag.shippingTotal / 100}
-                </p>
-              </div>
-              <div className="flex w-full items-end justify-between">
-                <p className="text-sm uppercase">Grand Total</p>
-                <p className="flex items-center text-lg font-semibold">
-                  <DollarSign className="h-5 w-5" />
-                  {bag.grandTotal / 100}
-                </p>
+            <CardFooter>
+              <div className="flex w-full flex-col gap-4 text-sm font-semibold lg:text-base">
+                <FormTitle>Payment</FormTitle>
+                <div className="flex items-end justify-between border-b border-input pb-2">
+                  <ValueLabel className="mb-0 ml-0 lg:mb-0 lg:ml-0">
+                    Item(s)
+                  </ValueLabel>
+                  <p>${bag.subTotal / 100}</p>
+                </div>
+                <div className="flex items-end justify-between border-b border-input pb-2">
+                  <ValueLabel className="mb-0 ml-0 lg:mb-0 lg:ml-0">
+                    Shipping Total
+                  </ValueLabel>
+                  {bag.shippingTotal === 0 ? (
+                    <p className="uppercase text-green-600">Free</p>
+                  ) : (
+                    <p>${bag.shippingTotal / 100}</p>
+                  )}
+                </div>
+                <div className="flex items-end justify-between">
+                  <ValueLabel className="mb-0 ml-0 lg:mb-0 lg:ml-0">
+                    Grand Total
+                  </ValueLabel>
+                  <p>${bag.grandTotal / 100}</p>
+                </div>
               </div>
             </CardFooter>
           </Card>
-        </section>
+        </div>
       </main>
     </>
   );

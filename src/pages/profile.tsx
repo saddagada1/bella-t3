@@ -9,11 +9,10 @@ import { Button } from "~/components/ui/button";
 import SafeImage from "~/components/ui/safeImage";
 import { Title } from "~/components/ui/typography/title";
 import { api } from "~/utils/api";
-import { paginationLimit } from "~/utils/constants";
+import { lgBreakpoint, paginationLimit } from "~/utils/constants";
 import { UserProfileCard } from "../components/userProfileCard";
 import ProductsGrid from "~/components/productsGrid";
 import { useWindowSize } from "usehooks-ts";
-import defaultTheme from "tailwindcss/defaultTheme";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ValueLabel } from "~/components/ui/typography/valueLabel";
 import ErrorView from "~/components/errorView";
@@ -86,7 +85,7 @@ const Profile: NextPage = ({}) => {
           <SafeImage
             url={session?.user.image}
             alt={session?.user.username ?? "profile"}
-            width={width > parseFloat(defaultTheme.screens.lg) ? 200 : 125}
+            width={width > lgBreakpoint ? 200 : 125}
             className="aspect-square shrink-0 overflow-hidden rounded-full"
           />
           <div className="flex flex-1 flex-col justify-center gap-10">

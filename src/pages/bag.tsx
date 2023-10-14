@@ -1,11 +1,11 @@
-import { DollarSign, Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { toast } from "sonner";
 import ErrorView from "~/components/errorView";
 import LoadingView from "~/components/loadingView";
+import ProductCard from "~/components/productCard";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -13,13 +13,13 @@ import {
   CardFooter,
   CardHeader,
 } from "~/components/ui/card";
-import SafeImage from "~/components/ui/safeImage";
+import { FormTitle } from "~/components/ui/form";
+import { NoContent } from "~/components/ui/typography/noContent";
 import { Title } from "~/components/ui/typography/title";
-import { env } from "~/env.mjs";
+import { ValueLabel } from "~/components/ui/typography/valueLabel";
 import { api } from "~/utils/api";
 
 const Bag: NextPage = ({}) => {
-  const router = useRouter();
   const t3 = api.useContext();
   const {
     data: bags,
@@ -72,7 +72,7 @@ const Bag: NextPage = ({}) => {
   }
 
   if (!bags || bagsError) {
-    toast.error(bagsError?.message ?? "Something Went Wrong");
+    toast.error("Something Went Wrong");
     return (
       <ErrorView
         code="500"
@@ -87,100 +87,109 @@ const Bag: NextPage = ({}) => {
       </Head>
       <main className="flex flex-1 flex-col px-6 py-4 lg:items-center lg:px-0 lg:py-8">
         <Title title="Bag" className="mb-4 w-full" />
-        {bags.map((bag, index) => (
-          <Card key={index} className="mb-4 w-full font-mono lg:flex">
-            <section className="flex-1">
-              <CardHeader
-                onClick={() => void router.push(`/${bag.userId}`)}
-                className="flex-row items-center gap-4 space-y-0"
-              >
-                <SafeImage
-                  url={bag.store.user.image}
-                  alt={bag.store.user.username}
-                  width={50}
-                  className="aspect-square overflow-hidden rounded-full"
-                />
-                <div>
-                  <p className="font-semibold">
-                    {bag.store.user.name ?? "Seller"}
-                  </p>
-                  <p className="text-sm">@{bag.store.user.username}</p>
-                </div>
-              </CardHeader>
-              <CardContent className="grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-2 lg:grid-rows-2">
-                {bag.bagItems.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <SafeImage
-                      url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + item.images[0]}
-                      alt={item.name}
-                      width={100}
-                      priority
-                      square
-                      onClick={() =>
-                        void router.push(`/products/${item.productId}`)
-                      }
-                      className="aspect-square shrink-0 overflow-hidden rounded-2xl"
-                    />
-                    <div className="grid h-[100px] w-full grid-cols-6 grid-rows-4">
-                      <div className="col-span-6 row-span-3 leading-none">
-                        <p className="truncate font-semibold">{item.name}</p>
-                        <p className="truncate text-sm">{item.description}</p>
+        {bags.length > 0 ? (
+          <div className="w-full space-y-4">
+            {bags.map((bag, index) => (
+              <Card key={index} className="lg:flex">
+                <div className="flex-1">
+                  <CardHeader className="space-y-0">
+                    <FormTitle className="mb-4">Summary</FormTitle>
+                    <div className="flex w-full flex-col text-center text-sm font-medium lg:flex-row lg:items-start lg:text-base">
+                      <div className="flex flex-1">
+                        <div className="flex-1 border-r border-input">
+                          <ValueLabel className="ml-0 lg:ml-0">
+                            Seller
+                          </ValueLabel>
+                          <Link
+                            className="hover:underline"
+                            href={`/${bag.store.user.username}`}
+                          >
+                            @{bag.store.user.username}
+                          </Link>
+                        </div>
+                        <div className="flex-1">
+                          <ValueLabel>Total Items</ValueLabel>
+                          <p>{bag.bagItems.length}</p>
+                        </div>
                       </div>
-                      <p className="col-span-5 flex items-center text-lg font-semibold">
-                        <DollarSign className="h-5 w-5" />
-                        {item.price / 100}
-                      </p>
-                      <button
-                        disabled={removingFromBag}
-                        onClick={() =>
-                          void removeFromBag({
-                            bagId: bag.id,
-                            bagItemId: item.id,
-                          })
-                        }
-                        className="flex items-center justify-end"
-                      >
-                        {removingFromBag &&
-                        removingVars?.bagId === bag.id &&
-                        removingVars.bagItemId === item.id ? (
-                          <Loader2 className="h-5 w-5 animate-spin text-destructive" />
-                        ) : (
-                          <Trash2 className="h-5 w-5 text-destructive" />
-                        )}
-                      </button>
+                      <div className="mt-4 flex flex-1 border-t border-input pt-4 lg:mt-0 lg:border-l lg:border-t-0 lg:pt-0">
+                        <div className="flex-1 border-r border-input">
+                          <ValueLabel className="ml-0">Discounts</ValueLabel>
+                          <p>None</p>
+                        </div>
+                        <div className="col-span-4 flex-1">
+                          <ValueLabel>Bundles</ValueLabel>
+                          <p>None</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <FormTitle className="mb-4">Item(s)</FormTitle>
+                    <div className="grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-2">
+                      {bag.bagItems.map((item, index) => (
+                        <ProductCard key={index} item={item}>
+                          <button
+                            disabled={removingFromBag}
+                            onClick={() =>
+                              void removeFromBag({
+                                bagId: bag.id,
+                                bagItemId: item.id,
+                              })
+                            }
+                            className="flex items-end justify-center pb-1"
+                          >
+                            {removingFromBag &&
+                            removingVars?.bagId === bag.id &&
+                            removingVars.bagItemId === item.id ? (
+                              <Loader2 className="h-5 w-5 animate-spin text-destructive" />
+                            ) : (
+                              <Trash2 className="h-5 w-5 text-destructive" />
+                            )}
+                          </button>
+                        </ProductCard>
+                      ))}
+                    </div>
+                  </CardContent>
+                </div>
+                <CardFooter className="flex-col gap-4 lg:basis-1/3 lg:pt-6">
+                  <div className="flex w-full flex-col gap-4 text-sm font-semibold lg:text-base">
+                    <FormTitle>Payment</FormTitle>
+                    <div className="flex items-end justify-between border-b border-input pb-2">
+                      <ValueLabel className="mb-0 ml-0 lg:mb-0 lg:ml-0">
+                        Item(s)
+                      </ValueLabel>
+                      <p>${bag.subTotal / 100}</p>
+                    </div>
+                    <div className="flex items-end justify-between border-b border-input pb-2">
+                      <ValueLabel className="mb-0 ml-0 lg:mb-0 lg:ml-0">
+                        Shipping Total
+                      </ValueLabel>
+                      {bag.shippingTotal === 0 ? (
+                        <p className="uppercase text-green-600">Free</p>
+                      ) : (
+                        <p>${bag.shippingTotal / 100}</p>
+                      )}
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <ValueLabel className="mb-0 ml-0 lg:mb-0 lg:ml-0">
+                        Grand Total
+                      </ValueLabel>
+                      <p>${bag.grandTotal / 100}</p>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </section>
-            <CardFooter className="flex-col gap-4 lg:basis-1/3 lg:pt-6">
-              <div className="flex w-full items-end justify-between border-b border-input pb-2">
-                <p className="text-sm uppercase">Item(s)</p>
-                <p className="flex items-center text-lg font-semibold">
-                  <DollarSign className="h-5 w-5" />
-                  {bag.subTotal / 100}
-                </p>
-              </div>
-              <div className="flex w-full items-end justify-between border-b border-input pb-2">
-                <p className="text-sm uppercase">Estimated Shipping</p>
-                <p className="flex items-center text-lg font-semibold">
-                  <DollarSign className="h-5 w-5" />
-                  {bag.shippingTotal / 100}
-                </p>
-              </div>
-              <div className="flex w-full items-end justify-between border-b border-input pb-2">
-                <p className="text-sm uppercase">Grand Total</p>
-                <p className="flex items-center text-lg font-semibold">
-                  <DollarSign className="h-5 w-5" />
-                  {bag.grandTotal / 100}
-                </p>
-              </div>
-              <Button asChild className="mt-4" size="form">
-                <Link href={`/pay?bagId=${bag.id}`}>Checkout</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+                  <Button asChild size="form">
+                    <Link href={`/pay?bagId=${bag.id}`}>Checkout</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <NoContent className="mt-12 text-center">
+            You haven&apos;t added any items to your bag yet.
+          </NoContent>
+        )}
       </main>
     </>
   );

@@ -15,7 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { DollarSign, Truck } from "lucide-react";
+import { Package } from "lucide-react";
 import { ssg } from "~/utils/ssg";
 import ErrorView from "~/components/errorView";
 import { env } from "~/env.mjs";
@@ -76,9 +76,9 @@ const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
       >
         <div className="w-1/2 lg:w-1/3">
           {form.formState.isSubmitting ? (
-            <ButtonLoading disabled className="w-full lg:h-12" />
+            <ButtonLoading disabled size="form" />
           ) : (
-            <Button type="submit" className="w-full lg:h-12">
+            <Button type="submit" size="form">
               Add To Bag
             </Button>
           )}
@@ -131,50 +131,40 @@ const Product: NextPage = ({}) => {
             ))}
           </Splide>
         </div>
-        <div className="w-full p-6 lg:p-0">
-          <h1 className="mb-4 font-mono text-2xl font-semibold leading-tight lg:text-3xl">
+        <div className="w-full p-6 font-semibold lg:p-0">
+          <h1 className="mb-4 text-2xl leading-tight lg:text-3xl">
             {product.name}
           </h1>
           <div className="mb-6 border-l-2 border-destructive pl-2 lg:w-2/3">
-            <p className="border-l-2 border-destructive pl-2 font-mono text-xs font-semibold uppercase lg:text-sm">
-              {`${product.department.name} • ${product.category.name} • ${product.subcategory} • Size ${product.size} • ${product.condition} Condition`}
+            <p className="border-l-2 border-destructive pl-2 text-sm font-medium text-muted-foreground lg:text-base">
+              {`${product.department.name},  ${product.category.name}, ${product.subcategory}, Size ${product.size}, ${product.condition} Condition`}
             </p>
           </div>
-          <div className="mb-10 flex items-center gap-4 font-mono font-semibold lg:text-lg">
+          <div className="mb-10 flex items-center gap-4 text-lg lg:text-xl">
+            <p className="flex items-center">${product.price / 100}</p>
+            <p>/</p>
             <p className="flex items-center">
-              <DollarSign className="h-5 w-5" />
-              {product.price / 100}
-            </p>
-            <p>•</p>
-            <p className="flex items-center">
-              <Truck className="mr-2 h-6 w-6" />
+              <Package className="mr-2 h-6 w-6" />
               {product.shippingPrice === 0 ? (
                 <span className="uppercase text-green-600">Free</span>
               ) : (
-                <>
-                  <DollarSign className="h-5 w-5" />
-                  {product.shippingPrice / 100}
-                </>
+                <>${product.shippingPrice / 100}</>
               )}
             </p>
           </div>
           <AddProductToBagForm id={product.id} />
           <Accordion
-            className="border-t border-input font-mono"
+            className="border-t border-input"
             type="single"
             collapsible
           >
             <AccordionItem value="description">
-              <AccordionTrigger className="uppercase">
-                Description
-              </AccordionTrigger>
+              <AccordionTrigger>Description</AccordionTrigger>
               <AccordionContent>{product.description}</AccordionContent>
             </AccordionItem>
             {product.designers.length > 0 && (
               <AccordionItem value="designers">
-                <AccordionTrigger className="uppercase">
-                  Designers
-                </AccordionTrigger>
+                <AccordionTrigger>Designers</AccordionTrigger>
                 <AccordionContent>
                   {product.designers
                     .map((designer) => designer.name)
@@ -184,9 +174,7 @@ const Product: NextPage = ({}) => {
             )}
             {product.sources.length > 0 && (
               <AccordionItem value="sources">
-                <AccordionTrigger className="uppercase">
-                  Sources
-                </AccordionTrigger>
+                <AccordionTrigger>Sources</AccordionTrigger>
                 <AccordionContent>
                   {product.sources.map((source) => source.name).join(", ")}
                 </AccordionContent>
@@ -194,9 +182,7 @@ const Product: NextPage = ({}) => {
             )}
             {product.styles.length > 0 && (
               <AccordionItem value="styles">
-                <AccordionTrigger className="uppercase">
-                  Styles
-                </AccordionTrigger>
+                <AccordionTrigger>Styles</AccordionTrigger>
                 <AccordionContent>
                   {product.styles.map((style) => style).join(", ")}
                 </AccordionContent>
@@ -204,7 +190,7 @@ const Product: NextPage = ({}) => {
             )}
             {product.eras.length > 0 && (
               <AccordionItem value="eras">
-                <AccordionTrigger className="uppercase">Eras</AccordionTrigger>
+                <AccordionTrigger>Eras</AccordionTrigger>
                 <AccordionContent>
                   {product.eras.map((era) => era).join(", ")}
                 </AccordionContent>
@@ -212,9 +198,7 @@ const Product: NextPage = ({}) => {
             )}
             {product.colours.length > 0 && (
               <AccordionItem value="colours">
-                <AccordionTrigger className="uppercase">
-                  colours
-                </AccordionTrigger>
+                <AccordionTrigger>colours</AccordionTrigger>
                 <AccordionContent>
                   {product.colours.map((colour) => colour).join(", ")}
                 </AccordionContent>

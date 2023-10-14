@@ -65,7 +65,7 @@ const StoreSettings: NextPage = ({}) => {
             </Button>
           ) : (
             <Button disabled size="form" className="disabled:opacity-100">
-              <CircleDollarSign className="mr-2 h-6 w-6 text-green-500" />
+              <CircleDollarSign className="mr-2 h-6 w-6 text-green-600" />
               Connected with Stripe
             </Button>
           )}
