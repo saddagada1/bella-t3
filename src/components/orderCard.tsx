@@ -63,8 +63,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, ...rest }) => {
                 <p
                   className={cn(
                     "capitalize",
-                    order.orderStatus === "failed" && "text-destructive",
-                    order.orderStatus === "completed" && "text-green-600",
+                    order.orderStatus === "cancelled" && "text-destructive",
+                    order.orderStatus === "shipped" && "text-green-600",
                   )}
                 >
                   {order.orderStatus.replace("_", " ")}
