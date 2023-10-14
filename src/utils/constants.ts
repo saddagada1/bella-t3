@@ -13,8 +13,10 @@ import {
   type Condition,
   type Designer,
   type Colour,
+  type NotificationTemplateArgs,
 } from "./types";
 import { z } from "zod";
+import { type NotificationAction } from "@prisma/client";
 
 export const countries = (countriesJSON as Country[]).map((country) => {
   return { value: country.code, label: country.name };
@@ -80,9 +82,21 @@ export const paginationLimit = 50;
 
 export const lgBreakpoint = 1024;
 
-export const notificationTemplate = {
-  newOrder: "A new order has been placed.",
-  editOrder: "A change has been made to order #{{orderId}}.",
-  cancelOrder: "Order #{{orderId}} has been cancelled. {{message}}",
-  updateOrder: "There has been an update to order #{{orderId}}. {{update}}",
+export const notificationTemplates: {
+  [Action in NotificationAction]: (
+    args: NotificationTemplateArgs[Action],
+  ) => string;
+} = {
+  NEW_ORDER: () => "A new order has been placed.",
+  EDIT_ORDER: ({ orderId }) => `A change has been made to order #${orderId}.`,
+  CANCEL_ORDER: ({
+    orderId,
+    message,
+  }: NotificationTemplateArgs["CANCEL_ORDER"]) =>
+    `Order #${orderId} has been cancelled. ${message}`,
+  UPDATE_ORDER: ({
+    orderId,
+    update,
+  }: NotificationTemplateArgs["UPDATE_ORDER"]) =>
+    `There has been an update to order #${orderId}. ${update}`,
 };

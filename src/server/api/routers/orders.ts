@@ -1,25 +1,14 @@
 import { TRPCError } from "@trpc/server";
-import i18next from "i18next";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
   applicationFeePercentage,
   currencies,
-  notificationTemplate,
+  notificationTemplates,
 } from "~/utils/constants";
 import { stripe } from "~/utils/stripe";
 import { type CheckoutReference } from "~/utils/types";
-
-await i18next.init({
-  lng: "en",
-  debug: true,
-  resources: {
-    en: {
-      translation: notificationTemplate,
-    },
-  },
-});
 
 export const ordersRouter = createTRPCRouter({
   createCheckoutSession: protectedProcedure
@@ -163,18 +152,31 @@ export const ordersRouter = createTRPCRouter({
               orderStatus: "cancelled",
               paymentStatus: "processing_refund",
             },
+            include: {
+              address: true,
+              orderItems: true,
+              user: {
+                select: {
+                  image: true,
+                  username: true,
+                  name: true,
+                },
+              },
+            },
           });
           await ctx.prisma.notification.create({
             data: {
               notifierId: ctx.session.user.id,
               notifiedId: order.userId,
-              modelId: order.id,
-              message: i18next.t("cancelOrder", {
+              schemaId: order.id,
+              action: "CANCEL_ORDER",
+              message: notificationTemplates.CANCEL_ORDER({
                 orderId: order.id,
                 message: "Your refund is being processed.",
               }),
             },
           });
+          return order;
         } else {
           const order = await ctx.prisma.order.update({
             where: { id: input.id, userId: ctx.session.user.id },
@@ -182,18 +184,35 @@ export const ordersRouter = createTRPCRouter({
               orderStatus: "cancelled",
               paymentStatus: "processing_refund",
             },
+            include: {
+              address: true,
+              orderItems: true,
+              store: {
+                select: {
+                  user: {
+                    select: {
+                      image: true,
+                      username: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
           });
           await ctx.prisma.notification.create({
             data: {
               notifierId: ctx.session.user.id,
               notifiedId: store.userId,
-              modelId: order.id,
-              message: i18next.t("cancelOrder", {
+              schemaId: order.id,
+              action: "CANCEL_ORDER",
+              message: notificationTemplates.CANCEL_ORDER({
                 orderId: order.id,
                 message: "The refund is being processed.",
               }),
             },
           });
+          return order;
         }
       } catch (error) {
         if (error instanceof TRPCError) {

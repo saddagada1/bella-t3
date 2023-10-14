@@ -1,4 +1,3 @@
-import i18next from "i18next";
 import Cors from "micro-cors";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { type RequestHandler } from "next/dist/server/next";
@@ -6,19 +5,9 @@ import { buffer } from "stream/consumers";
 import type Stripe from "stripe";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-import { notificationTemplate } from "~/utils/constants";
+import { notificationTemplates } from "~/utils/constants";
 import { stripe } from "~/utils/stripe";
 import { type CheckoutReference } from "~/utils/types";
-
-await i18next.init({
-  lng: "en",
-  debug: true,
-  resources: {
-    en: {
-      translation: notificationTemplate,
-    },
-  },
-});
 
 const cors = Cors({
   allowMethods: ["POST", "HEAD"],
@@ -51,16 +40,6 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const stripeOrder = event.data.object as Stripe.Checkout.Session;
 
-    if (
-      !stripeOrder.payment_intent ||
-      typeof stripeOrder.payment_intent !== "string"
-    ) {
-      res.status(400).send(`Webhook Error: Invalid Payment Intent`);
-      return;
-    }
-
-    const paymentId = stripeOrder.payment_intent;
-
     if (!stripeOrder.client_reference_id) {
       res.status(400).send(`Webhook Error: No Client Reference Id`);
       return;
@@ -71,6 +50,15 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
 
     try {
       if (event.type === "checkout.session.completed") {
+        if (
+          !stripeOrder.payment_intent ||
+          typeof stripeOrder.payment_intent !== "string"
+        ) {
+          res.status(400).send(`Webhook Error: Invalid Payment Intent`);
+          return;
+        }
+
+        const paymentId = stripeOrder.payment_intent;
         const order = await prisma.$transaction(async () => {
           const bag = await prisma.bag.findUnique({
             where: { id: reference.bagId },
@@ -151,8 +139,9 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
           data: {
             notifierId: reference.userId,
             notifiedId: reference.sellerId,
-            modelId: order.id,
-            message: i18next.t("newOrder"),
+            schemaId: order.id,
+            action: "NEW_ORDER",
+            message: notificationTemplates.NEW_ORDER({}),
           },
         });
       } else if (
@@ -169,8 +158,9 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
           data: {
             notifierId: reference.userId,
             notifiedId: reference.sellerId,
-            modelId: order.id,
-            message: i18next.t("updateOrder", {
+            schemaId: order.id,
+            action: "UPDATE_ORDER",
+            message: notificationTemplates.UPDATE_ORDER({
               orderId: order.id,
               update: "The payment has been processed.",
             }),
@@ -180,8 +170,9 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
           data: {
             notifierId: reference.sellerId,
             notifiedId: reference.userId,
-            modelId: order.id,
-            message: i18next.t("updateOrder", {
+            schemaId: order.id,
+            action: "UPDATE_ORDER",
+            message: notificationTemplates.UPDATE_ORDER({
               orderId: order.id,
               update: "Your payment has been processed.",
             }),
@@ -201,8 +192,9 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
           data: {
             notifierId: reference.userId,
             notifiedId: reference.sellerId,
-            modelId: order.id,
-            message: i18next.t("updateOrder", {
+            schemaId: order.id,
+            action: "UPDATE_ORDER",
+            message: notificationTemplates.UPDATE_ORDER({
               orderId: order.id,
               update: "The payment could not be processed.",
             }),
@@ -212,8 +204,9 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
           data: {
             notifierId: reference.sellerId,
             notifiedId: reference.userId,
-            modelId: order.id,
-            message: i18next.t("updateOrder", {
+            schemaId: order.id,
+            action: "UPDATE_ORDER",
+            message: notificationTemplates.UPDATE_ORDER({
               orderId: order.id,
               update: "Your payment could not be processed.",
             }),

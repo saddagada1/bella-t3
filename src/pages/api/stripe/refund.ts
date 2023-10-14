@@ -1,4 +1,3 @@
-import i18next from "i18next";
 import Cors from "micro-cors";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { type RequestHandler } from "next/dist/server/next";
@@ -6,18 +5,8 @@ import { buffer } from "stream/consumers";
 import type Stripe from "stripe";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-import { notificationTemplate } from "~/utils/constants";
+import { notificationTemplates } from "~/utils/constants";
 import { stripe } from "~/utils/stripe";
-
-await i18next.init({
-  lng: "en",
-  debug: true,
-  resources: {
-    en: {
-      translation: notificationTemplate,
-    },
-  },
-});
 
 const cors = Cors({
   allowMethods: ["POST", "HEAD"],
@@ -73,8 +62,9 @@ const refund = async (req: NextApiRequest, res: NextApiResponse) => {
         data: {
           notifierId: order.store.userId,
           notifiedId: order.userId,
-          modelId: order.id,
-          message: i18next.t("updateOrder", {
+          schemaId: order.id,
+          action: "UPDATE_ORDER",
+          message: notificationTemplates.UPDATE_ORDER({
             orderId: order.id,
             update: "Your refund has been processed.",
           }),
@@ -84,8 +74,9 @@ const refund = async (req: NextApiRequest, res: NextApiResponse) => {
         data: {
           notifierId: order.userId,
           notifiedId: order.store.userId,
-          modelId: order.id,
-          message: i18next.t("updateOrder", {
+          schemaId: order.id,
+          action: "UPDATE_ORDER",
+          message: notificationTemplates.UPDATE_ORDER({
             orderId: order.id,
             update: "The refund has been processed.",
           }),

@@ -69,7 +69,7 @@ const Orders: NextPage = ({}) => {
           >
             <div className="w-full space-y-4">
               {data.items.map((order, index) => (
-                <OrderCard key={index} order={order} />
+                <OrderCard key={index} data={order} />
               ))}
             </div>
           </Pagination>

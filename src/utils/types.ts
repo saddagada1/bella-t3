@@ -83,3 +83,10 @@ export interface StoreOrder extends PrismaOrder {
   address: Address;
   orderItems: OrderItem[];
 }
+
+export interface NotificationTemplateArgs {
+  NEW_ORDER: Record<string, never>;
+  EDIT_ORDER: { orderId: string };
+  CANCEL_ORDER: { orderId: string; message: string };
+  UPDATE_ORDER: { orderId: string; update: string };
+}

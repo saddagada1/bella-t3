@@ -7,14 +7,25 @@ import ProductCard from "./productCard";
 import { Button } from "./ui/button";
 import { calcRelativeTime } from "~/utils/calc";
 import { cn } from "~/utils/shadcn/utils";
-import { type HTMLAttributes } from "react";
+import { useState, type HTMLAttributes } from "react";
+import { api } from "~/utils/api";
+import { toast } from "sonner";
 
 interface OrderCardProps extends HTMLAttributes<HTMLDivElement> {
-  order: UserOrder | StoreOrder;
+  data: UserOrder | StoreOrder;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ order, ...rest }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ data, ...rest }) => {
+  const [order, setOrder] = useState(data);
   const { className, ...props } = rest;
+  const { mutateAsync: cancelOrder } = api.orders.cancelOrder.useMutation({
+    onError: (err) => {
+      toast.error(err.message);
+    },
+    onSuccess: (response) => {
+      setOrder(response);
+    },
+  });
   return (
     <Card {...props} className={cn("lg:flex", className)}>
       <div className="flex-1">
@@ -122,10 +133,35 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, ...rest }) => {
           </div>
         </div>
         <div className="flex w-full gap-4">
-          <Button size="form" variant="outline">
+          <Button
+            disabled={order.orderStatus !== "in_progress"}
+            size="form"
+            variant="outline"
+          >
             Edit
           </Button>
-          <Button size="form">Cancel</Button>
+          <Button
+            onClick={() => {
+              try {
+                void cancelOrder({
+                  type: "store" in order ? "user" : "store",
+                  id: order.id,
+                  storeId: order.storeId,
+                  paymentId: order.paymentId,
+                });
+              } catch (error) {
+                return;
+              }
+            }}
+            disabled={order.orderStatus !== "in_progress"}
+            size="form"
+          >
+            {order.orderStatus === "cancelled"
+              ? "Cancelled"
+              : order.orderStatus === "shipped"
+              ? "Shipped"
+              : "Cancel"}
+          </Button>
         </div>
       </CardFooter>
     </Card>

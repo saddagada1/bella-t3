@@ -8,19 +8,27 @@ generator client {
     provider = "prisma-client-js"
 }
 
+enum NotificationAction {
+    NEW_ORDER
+    EDIT_ORDER
+    CANCEL_ORDER
+    UPDATE_ORDER
+}
+
 model Notification {
-    id         String   @id @default(cuid())
+    id         String             @id @default(cuid())
     notifierId String
-    notifier   User     @relation("notificationActions", fields: [notifierId], references: [id], onDelete: Cascade)
+    notifier   User               @relation("notificationActions", fields: [notifierId], references: [id], onDelete: Cascade)
     notifiedId String
-    notified   User     @relation("notifications", fields: [notifiedId], references: [id], onDelete: Cascade)
-    modelId    String
+    notified   User               @relation("notifications", fields: [notifiedId], references: [id], onDelete: Cascade)
+    schemaId   String
+    action     NotificationAction
     message    String
-    createdAt  DateTime @default(now())
+    createdAt  DateTime           @default(now())
 
     @@index([notifierId])
     @@index([notifiedId])
-    @@index([modelId])
+    @@index([schemaId])
 }
 
 model OrderItem {
