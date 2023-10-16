@@ -13,3 +13,9 @@ export const calcUsername = (email?: string) => {
 export const calcRelativeTime = (time: Date) => {
   return dayjs(time).fromNow();
 };
+
+export const calcCompactValue = (value: number) => {
+  return value.toLocaleString(undefined, {
+    notation: "compact",
+  });
+};

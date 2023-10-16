@@ -17,11 +17,11 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop, accept, maxFiles }) => {
 
   return (
     <div
-      className="aspect-[16/5] w-full rounded-2xl border border-dashed border-input lg:rounded-3xl"
+      className="aspect-[16/5] w-full rounded-2xl border border-dashed border-input lg:aspect-[16/2] lg:rounded-3xl"
       {...getRootProps()}
     >
       <input className="dropzone-input" {...getInputProps()} />
-      <div className="flex h-full w-full flex-col items-center justify-center text-xs text-input">
+      <div className="flex h-full w-full flex-col items-center justify-center text-xs text-input lg:text-sm">
         <p className="flex items-center">
           <Camera className="mr-2 h-4 w-4" />
           Upload up to {maxFiles} Images

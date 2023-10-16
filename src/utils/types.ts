@@ -64,6 +64,13 @@ export interface Address {
   country: string;
 }
 
+export interface SimplifiedProduct {
+  id: string;
+  images: string[];
+  name: string;
+  price: number;
+}
+
 export interface SimplifiedUser {
   image?: string | null;
   username: string;

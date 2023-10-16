@@ -136,15 +136,11 @@ export const ordersRouter = createTRPCRouter({
             message: "Store Not Found",
           });
         }
-        await stripe.refunds.create(
-          {
-            payment_intent: input.paymentId,
-            refund_application_fee: true,
-          },
-          {
-            stripeAccount: store.stripeAccountId,
-          },
-        );
+        await stripe.refunds.create({
+          payment_intent: input.paymentId,
+          refund_application_fee: true,
+          reverse_transfer: true,
+        });
         if (input.type === "store") {
           const order = await ctx.prisma.order.update({
             where: { id: input.id, store: { userId: ctx.session.user.id } },
@@ -218,7 +214,7 @@ export const ordersRouter = createTRPCRouter({
         if (error instanceof TRPCError) {
           throw error;
         }
-        //console.log(error);
+        console.log(error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Unable To Create Stripe Session",

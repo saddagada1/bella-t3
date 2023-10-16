@@ -13,6 +13,9 @@ export default withAuth((req) => {
     req.nextUrl.pathname === "/store/settings" ||
     req.nextUrl.pathname === "/products/create"
   ) {
+    if (!token?.verified) {
+      return NextResponse.redirect(new URL("/profile/settings", req.url));
+    }
     if (!token?.hasStore) {
       return NextResponse.redirect(new URL("/store/create", req.url));
     }
@@ -20,5 +23,12 @@ export default withAuth((req) => {
 });
 
 export const config = {
-  matcher: ["/store/:path*", "/profile/:path*", "/products/create"],
+  matcher: [
+    "/store/:path*",
+    "/profile/:path*",
+    "/products/create",
+    "/bag",
+    "/pay",
+    "/orders",
+  ],
 };

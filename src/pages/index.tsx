@@ -32,7 +32,7 @@ const Home = () => {
   }
 
   if (!products || productsError) {
-    toast.error(productsError?.message ?? "Something Went Wrong");
+    toast.error("Something Went Wrong");
     return <ErrorView />;
   }
 
@@ -88,7 +88,7 @@ const Home = () => {
             </div>
           </div>
         </section>
-        <section className="mt-2 w-full flex-1">
+        <section className="mt-4 w-full flex-1">
           <ScrollPagination
             onClickNext={() => void fetchNextPage()}
             hasNext={!!hasNextPage}

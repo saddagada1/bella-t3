@@ -83,7 +83,7 @@ const Pay: NextPage = ({}) => {
       </Head>
       <main className="flex-1 px-6 py-4 lg:px-0 lg:py-8">
         <Title title="Pay" className="mb-4 w-full" />
-        <div className="flex flex-col-reverse gap-4 lg:flex-row">
+        <div className="flex flex-col-reverse gap-4 lg:flex-row-reverse">
           <Card className="h-fit lg:basis-1/3">
             <CardHeader>
               <FormTitle className="mb-4">Shipping Address</FormTitle>
@@ -163,10 +163,14 @@ const Pay: NextPage = ({}) => {
                       toast.error("No Shipping Address Provided");
                       return;
                     }
-                    void checkout({
-                      bagId: bag.id,
-                      addressId: selectedAddress,
-                    });
+                    try {
+                      void checkout({
+                        bagId: bag.id,
+                        addressId: selectedAddress,
+                      });
+                    } catch (error) {
+                      return;
+                    }
                   }}
                   size="form"
                 >

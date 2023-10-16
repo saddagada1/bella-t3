@@ -76,10 +76,20 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        like: {
+          from: { scale: "150%", fill: "none" },
+          to: { scale: "100%", fill: "hsl(var(--destructive))" },
+        },
+        unlike: {
+          from: { scale: "150%", fill: "hsl(var(--destructive))" },
+          to: { scale: "100%", fill: "none" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        like: "like 0.2s cubic-bezier(0.64, 0.57, 0.67, 1.53) forwards",
+        unlike: "unlike 0.2s cubic-bezier(0.64, 0.57, 0.67, 1.53) forwards",
       },
     },
   },

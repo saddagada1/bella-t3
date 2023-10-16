@@ -32,7 +32,7 @@ interface PreviewGridProps {
 const PreviewGrid: React.FC<PreviewGridProps> = ({ images, onDelete }) => {
   const [hideDelete, setHideDelete] = useState(false);
   return (
-    <div className="my-4 grid w-full grid-cols-3 grid-rows-3 gap-2">
+    <div className="my-4 grid w-full grid-cols-3 grid-rows-3 gap-2 lg:grid-cols-9 lg:grid-rows-1">
       {Array(9)
         .fill(null)
         .map((_, index) => {

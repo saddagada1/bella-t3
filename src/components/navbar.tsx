@@ -9,6 +9,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { departments, sources } from "~/utils/constants";
 import { api } from "~/utils/api";
 import { toast } from "sonner";
+import NotificationCard from "./notificationCard";
+import { NoContent } from "./ui/typography/noContent";
 
 const MenuLink: React.FC<{ href: string; label: string }> = ({
   href,
@@ -238,33 +240,55 @@ const Navbar: React.FC = () => {
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <Button className="hidden lg:flex" asChild variant="outline">
-                    <Link href="/notifications">
-                      Notifications(0)
+                    <p className="cursor-pointer">
+                      Notifications({notifications?.items.length ?? 0})
                       <ChevronDown className="ml-2 h-4 w-4" />
-                    </Link>
+                    </p>
                   </Button>
                 </HoverCardTrigger>
-                <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
-                  {notifications?.items.map((notification, index) => (
-                    <p key={index}>{notification.message}</p>
-                  ))}
+                <HoverCardContent className="flex w-[300px] flex-col gap-4">
+                  {notifications && notifications.items.length > 0 ? (
+                    notifications?.items.map((notification, index) => (
+                      <NotificationCard
+                        className={index !== 0 ? "border-t pt-4" : undefined}
+                        key={index}
+                        notification={notification}
+                      />
+                    ))
+                  ) : (
+                    <NoContent className="py-6 text-center">
+                      No Recent Notifications
+                    </NoContent>
+                  )}
+                  <Link
+                    className="border-t pt-4 text-center text-sm font-medium hover:underline"
+                    href="/notifications"
+                  >
+                    View All Notifications
+                  </Link>
                 </HoverCardContent>
               </HoverCard>
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <Button className="hidden lg:flex" asChild variant="outline">
-                    <Link href="/profile">
+                    <p className="cursor-pointer">
                       Profile
                       <ChevronDown className="ml-2 h-4 w-4" />
-                    </Link>
+                    </p>
                   </Button>
                 </HoverCardTrigger>
-                <HoverCardContent className="flex w-fit flex-col">
-                  <Button asChild variant="ghost" className="justify-start">
+                <HoverCardContent className="flex w-fit flex-col gap-4">
+                  <Button asChild variant="secondary" className="justify-start">
                     <Link href="/store">Store</Link>
                   </Button>
-                  <Button asChild variant="ghost" className="justify-start">
+                  <Button asChild variant="secondary" className="justify-start">
                     <Link href="/orders">Orders</Link>
+                  </Button>
+                  <Button asChild variant="secondary" className="justify-start">
+                    <Link href="/profile">View Profile</Link>
+                  </Button>
+                  <Button onClick={() => void signOut()} variant="destructive">
+                    Sign Out
                   </Button>
                 </HoverCardContent>
               </HoverCard>

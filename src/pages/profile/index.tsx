@@ -1,6 +1,5 @@
 import { ListPlus, Settings } from "lucide-react";
 import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -10,30 +9,21 @@ import SafeImage from "~/components/ui/safeImage";
 import { Title } from "~/components/ui/typography/title";
 import { api } from "~/utils/api";
 import { lgBreakpoint, paginationLimit } from "~/utils/constants";
-import { UserProfileCard } from "../components/userProfileCard";
 import ProductsGrid from "~/components/productsGrid";
 import { useWindowSize } from "usehooks-ts";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ValueLabel } from "~/components/ui/typography/valueLabel";
 import ErrorView from "~/components/errorView";
 import LoadingView from "~/components/loadingView";
-
-const UserTabs = () => {
-  return (
-    <Tabs defaultValue="all">
-      <TabsList>
-        <TabsTrigger value="all">All</TabsTrigger>
-        <TabsTrigger value="selling">Selling</TabsTrigger>
-        <TabsTrigger value="sold">Sold</TabsTrigger>
-        <TabsTrigger value="reviews">Reviews</TabsTrigger>
-      </TabsList>
-    </Tabs>
-  );
-};
+import UserProfileStats from "~/components/userProfileStats";
+import UserTabs from "~/components/userTabs";
 
 const Profile: NextPage = ({}) => {
-  const { data: session, status: sessionStatus } = useSession();
   const { width } = useWindowSize();
+  const {
+    data: profile,
+    isLoading: fetchingProfile,
+    error: profileError,
+  } = api.users.getSessionUser.useQuery();
   const {
     data: products,
     isLoading: fetchingProducts,
@@ -50,14 +40,21 @@ const Profile: NextPage = ({}) => {
     },
   );
 
-  if (fetchingProducts || sessionStatus === "loading") {
+  if (fetchingProducts || fetchingProfile) {
     return <LoadingView />;
   }
 
-  if (!products || productsError) {
-    toast.error(productsError?.message ?? "Something Went Wrong");
-    return <ErrorView />;
+  if ((!profile || profileError) ?? (!products || productsError)) {
+    toast.error("Something Went Wrong");
+    return (
+      <ErrorView
+        code="500"
+        message="We couldn't fetch your profile. This ones on us. Please refresh the page and try again."
+      />
+    );
   }
+
+  console.log(new Date(profile.updatedAt));
 
   return (
     <>
@@ -65,7 +62,7 @@ const Profile: NextPage = ({}) => {
         <title>Bella - Your Profile</title>
       </Head>
       <main className="flex-1 px-4 pt-2 lg:px-0 lg:py-8">
-        <Title title={session?.user.name ?? "Profile"} className="mb-4">
+        <Title title={profile.username ?? profile.name} className="mb-4">
           <div className="flex w-fit justify-end gap-2">
             <Button asChild variant="outline">
               <Link href="/products/create">
@@ -74,7 +71,7 @@ const Profile: NextPage = ({}) => {
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/settings">
+              <Link href="/profile/settings">
                 <p className="mr-2 hidden lg:block">Edit Profile</p>
                 <Settings className="h-5 w-5" />
               </Link>
@@ -83,28 +80,27 @@ const Profile: NextPage = ({}) => {
         </Title>
         <div className="mb-4 flex gap-4 border-b border-input pb-4 lg:gap-8">
           <SafeImage
-            url={session?.user.image}
-            alt={session?.user.username ?? "profile"}
+            url={profile.image}
+            alt={profile.username ?? "profile"}
             width={width > lgBreakpoint ? 200 : 125}
             className="aspect-square shrink-0 overflow-hidden rounded-full"
           />
           <div className="flex flex-1 flex-col justify-center gap-10">
-            <UserProfileCard
-              username={session?.user.username}
-              products={0}
+            <UserProfileStats
+              products={profile.store?.productsCount}
               sales={0}
-              followers={0}
-              following={0}
+              followers={profile.followersCount}
+              following={profile.followingCount}
             />
             <div className="hidden lg:block">
               <UserTabs />
             </div>
           </div>
         </div>
-        {session?.user.bio && (
+        {profile.bio && (
           <div className="mb-4 border-b border-input pb-4">
             <ValueLabel className="ml-0 lg:ml-0">About</ValueLabel>
-            <p className="font-mono text-sm lg:text-xl">{session.user.bio}</p>
+            <p className="text-sm font-medium lg:text-xl">{profile.bio}</p>
           </div>
         )}
         <div className="mb-4 lg:hidden">

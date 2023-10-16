@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
 import { v4 } from "uuid";
 import { z } from "zod";
@@ -8,6 +9,17 @@ import {
 } from "~/server/api/trpc";
 import { productInput } from "~/utils/constants";
 import { uploadObjects } from "~/utils/s3";
+
+const productFilters = z.object({
+  subcategory: z.string().optional(),
+  condition: z.string().optional(),
+  size: z.string().optional(),
+  colours: z.object({ hasSome: z.array(z.string()) }).optional(),
+  eras: z.object({ hasSome: z.array(z.string()) }).optional(),
+  styles: z.object({ hasSome: z.array(z.string()) }).optional(),
+  country: z.string().optional(),
+  sold: z.boolean().optional(),
+});
 
 export const productsRouter = createTRPCRouter({
   create: protectedProcedure
@@ -33,6 +45,13 @@ export const productsRouter = createTRPCRouter({
         ...product
       } = input;
       try {
+        if (!ctx.session.user.verified || !ctx.session.user.canSell) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Unable To Create Product",
+          });
+        }
+
         const store = await ctx.prisma.store.findUnique({
           where: { userId: ctx.session.user.id },
         });
@@ -40,7 +59,7 @@ export const productsRouter = createTRPCRouter({
         if (!store) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
-            message: "Unable To Create Product",
+            message: "User Does Not Have A Store",
           });
         }
 
@@ -137,6 +156,10 @@ export const productsRouter = createTRPCRouter({
               name: true,
             },
           },
+          likes: {
+            where: { userId: ctx.session?.user.id },
+            select: { userId: true, productId: true },
+          },
         },
       });
 
@@ -161,10 +184,14 @@ export const productsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const products = await ctx.prisma.product.findMany({
         where: { store: { userId: ctx.session.user.id } },
+        orderBy: {
+          updatedAt: "desc",
+        },
         select: {
           id: true,
           images: true,
           price: true,
+          name: true,
         },
         skip: input.skip,
         take: input.limit + 1,
@@ -181,20 +208,26 @@ export const productsRouter = createTRPCRouter({
       };
     }),
 
-  getStoreProducts: protectedProcedure
+  getStoreProducts: publicProcedure
     .input(
       z.object({
+        id: z.string(),
         limit: z.number(),
         cursor: z.string().optional(),
         skip: z.number().optional(),
-        sold: z.boolean().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const products = await ctx.prisma.product.findMany({
-        where: { store: { userId: ctx.session.user.id }, sold: !!input.sold },
+        where: { store: { userId: input.id } },
         orderBy: {
           updatedAt: "desc",
+        },
+        select: {
+          id: true,
+          images: true,
+          price: true,
+          name: true,
         },
         skip: input.skip,
         take: input.limit + 1,
@@ -217,14 +250,17 @@ export const productsRouter = createTRPCRouter({
         limit: z.number(),
         cursor: z.string().optional(),
         skip: z.number().optional(),
+        filter: productFilters.optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const products = await ctx.prisma.product.findMany({
+        where: input.filter,
         select: {
           id: true,
           images: true,
           price: true,
+          name: true,
         },
         skip: input.skip,
         take: input.limit + 1,
@@ -239,5 +275,74 @@ export const productsRouter = createTRPCRouter({
         next: next,
         items: products,
       };
+    }),
+
+  like: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const like = await ctx.prisma.$transaction(async () => {
+          const response = await ctx.prisma.like.create({
+            data: { userId: ctx.session.user.id, productId: input.id },
+          });
+          await ctx.prisma.product.update({
+            where: { id: input.id },
+            data: {
+              likesCount: { increment: 1 },
+            },
+          });
+          return response;
+        });
+        return like;
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === "P2002") {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Already Liked Product",
+            });
+          }
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable To Like Product",
+        });
+      }
+    }),
+
+  unlike: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        await ctx.prisma.$transaction(async () => {
+          await ctx.prisma.like.delete({
+            where: {
+              productId_userId: {
+                productId: input.id,
+                userId: ctx.session.user.id,
+              },
+            },
+          });
+          await ctx.prisma.product.update({
+            where: { id: input.id },
+            data: {
+              likesCount: { decrement: 1 },
+            },
+          });
+        });
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === "P2002") {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Product Not Liked",
+            });
+          }
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable To Unlike Product",
+        });
+      }
     }),
 });

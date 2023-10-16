@@ -72,7 +72,6 @@ export const productInput = z.object({
   country: z.string().min(1, "Required"),
   shippingPrice: z.string().min(1, "Required"),
   price: z.string().min(1, "Required"),
-  available: z.boolean().optional(),
   sold: z.boolean().optional(),
 });
 

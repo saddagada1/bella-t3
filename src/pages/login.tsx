@@ -24,9 +24,7 @@ import Image from "next/image";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid Email" }),
-  password: z
-    .string({ required_error: "Required" })
-    .min(1, { message: "Required" }),
+  password: z.string().min(1, { message: "Required" }),
 });
 
 const LoginForm: React.FC = () => {
@@ -57,7 +55,14 @@ const LoginForm: React.FC = () => {
       password: values.password,
     });
     if (response?.ok) {
-      void router.push("/");
+      if (
+        router.query.callbackUrl &&
+        typeof router.query.callbackUrl === "string"
+      ) {
+        void router.push(router.query.callbackUrl);
+      } else {
+        void router.push("/");
+      }
     } else {
       form.setError("email", {
         type: "manual",
@@ -106,7 +111,7 @@ const LoginForm: React.FC = () => {
         />
         <FormLink>Forgot Password?</FormLink>
         {form.formState.isSubmitting ? (
-          <ButtonLoading disabled size="form" />
+          <ButtonLoading size="form" />
         ) : (
           <Button size="form" type="submit">
             Login

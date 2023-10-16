@@ -8,6 +8,32 @@ generator client {
     provider = "prisma-client-js"
 }
 
+model Follow {
+    id         String   @id @default(cuid())
+    followedId String
+    followerId String
+    followed   User     @relation("followers", fields: [followedId], references: [id], onDelete: Cascade)
+    follower   User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+    createdAt  DateTime @default(now())
+
+    @@unique([followedId, followerId])
+    @@index([followedId])
+    @@index([followerId])
+}
+
+model Like {
+    id        String   @id @default(cuid())
+    productId String
+    userId    String
+    product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+
+    @@unique([productId, userId])
+    @@index([productId])
+    @@index([userId])
+}
+
 enum NotificationAction {
     NEW_ORDER
     EDIT_ORDER
@@ -209,6 +235,8 @@ model Product {
     store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
     bagItems      BagItem[]
     orderItems    OrderItem[]
+    likesCount    Int         @default(0)
+    likes         Like[]
     createdAt     DateTime    @default(now())
     updatedAt     DateTime    @updatedAt
 
@@ -238,6 +266,7 @@ model Store {
     country           String
     userId            String      @unique
     user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    productsCount     Int         @default(0)
     products          Product[]
     bags              Bag[]
     orders            Order[]
@@ -298,6 +327,11 @@ model User {
     addresses           Address[]
     notificationActions Notification[] @relation("notificationActions")
     notifications       Notification[] @relation("notifications")
+    likes               Like[]
+    followersCount      Int            @default(0)
+    followingCount      Int            @default(0)
+    followers           Follow[]       @relation("followers")
+    following           Follow[]       @relation("following")
     createdAt           DateTime       @default(now())
     updatedAt           DateTime       @updatedAt
 

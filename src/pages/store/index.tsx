@@ -22,45 +22,6 @@ import { Title } from "~/components/ui/typography/title";
 import { ValueLabel } from "~/components/ui/typography/valueLabel";
 import { api } from "~/utils/api";
 
-const useStoreProducts = () => {
-  const {
-    data: products,
-    isLoading: fetchingProducts,
-    error: productsError,
-  } = api.products.getStoreProducts.useQuery({
-    limit: 10,
-  });
-  const {
-    data: soldProducts,
-    isLoading: fetchingSoldProducts,
-    error: soldProductsError,
-  } = api.products.getStoreProducts.useQuery({
-    limit: 10,
-    sold: true,
-  });
-
-  if (fetchingProducts || fetchingSoldProducts) {
-    return { data: undefined, isLoading: true, error: undefined };
-  }
-
-  if ((!products || productsError) ?? (!soldProducts || soldProductsError)) {
-    return {
-      data: undefined,
-      isLoading: false,
-      error: "Error: Could Not Fetch Library Data",
-    };
-  }
-
-  return {
-    data: {
-      products: products.items,
-      soldProducts: soldProducts.items,
-    },
-    isLoading: false,
-    error: undefined,
-  };
-};
-
 const Store: NextPage = ({}) => {
   const { data: session, update: updateSession } = useSession();
   const {
@@ -74,17 +35,12 @@ const Store: NextPage = ({}) => {
       }
     },
   });
-  const {
-    data: products,
-    isLoading: fetchingProducts,
-    error: productsError,
-  } = useStoreProducts();
 
-  if (fetchingStore || fetchingProducts) {
+  if (fetchingStore) {
     return <LoadingView />;
   }
 
-  if ((!store || storeError) ?? (!products || productsError)) {
+  if (!store || storeError) {
     toast.error("Something Went Wrong");
     return (
       <ErrorView
@@ -122,7 +78,7 @@ const Store: NextPage = ({}) => {
             </Button>
           </div>
         </Title>
-        <div className="flex basis-1/4 gap-4">
+        <div className="flex flex-col gap-4 lg:basis-1/4 lg:flex-row">
           <StatsCard className="basis-1/3" title="Items Selling" data={`${0}`}>
             <Package className="h-6 w-6" />
           </StatsCard>
@@ -133,7 +89,7 @@ const Store: NextPage = ({}) => {
             <DollarSign className="h-6 w-6" />
           </StatsCard>
         </div>
-        <div className="basis-3/4">
+        <div className="lg:basis-3/4">
           <Card>
             <CardHeader>
               <div className="flex justify-between">

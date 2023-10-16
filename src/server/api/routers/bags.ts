@@ -104,7 +104,7 @@ export const bagsRouter = createTRPCRouter({
           if (error.code === "P2002") {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "Product Already In Cart",
+              message: "Product Already In Bag",
             });
           }
         }

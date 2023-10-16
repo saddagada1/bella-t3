@@ -15,14 +15,21 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Package } from "lucide-react";
+import { Heart, Package } from "lucide-react";
 import { ssg } from "~/utils/ssg";
 import ErrorView from "~/components/errorView";
 import { env } from "~/env.mjs";
 import { useForm } from "react-hook-form";
+import { calcCompactValue } from "~/utils/calc";
+import { useMemo } from "react";
+import { cn } from "~/utils/shadcn/utils";
+import { useSession } from "next-auth/react";
 
 const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
+  const router = useRouter();
+  const { status: sessionStatus } = useSession();
   const t3 = api.useContext();
+  const { data: bags } = api.bags.getUserBags.useQuery();
   const { mutateAsync: addToBag } = api.bags.addToBag.useMutation({
     onMutate: async () => {
       await t3.bags.countBagItems.cancel();
@@ -57,9 +64,19 @@ const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
     },
   });
 
+  const inBag = useMemo(() => {
+    return bags?.some((bag) =>
+      bag.bagItems.some((item) => item.productId === id),
+    );
+  }, [id, bags]);
+
   const form = useForm();
 
   const onSubmit = async () => {
+    if (sessionStatus !== "authenticated") {
+      void router.push(`/login?callbackUrl=/products/${id}`);
+      return;
+    }
     try {
       await addToBag({ id });
     } catch (error) {
@@ -77,6 +94,10 @@ const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
         <div className="w-1/2 lg:w-1/3">
           {form.formState.isSubmitting ? (
             <ButtonLoading disabled size="form" />
+          ) : inBag ? (
+            <Button disabled type="submit" size="form">
+              Added To Bag
+            </Button>
           ) : (
             <Button type="submit" size="form">
               Add To Bag
@@ -90,13 +111,79 @@ const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
 
 const Product: NextPage = ({}) => {
   const router = useRouter();
+  const { data: session } = useSession();
   const [imageContainer, { width }] = useElementSize();
+  const t3 = api.useContext();
   const { data: product, error: productError } = api.products.get.useQuery(
     {
       id: router.query.id as string,
     },
     { enabled: typeof router.query.id === "string" },
   );
+  const { mutateAsync: like, isLoading: liking } =
+    api.products.like.useMutation({
+      onMutate: async () => {
+        if (!session || !product) return;
+        await t3.products.get.cancel({ id: product.id });
+        const cachedProduct = t3.products.get.getData({
+          id: product.id,
+        });
+        t3.products.get.setData({ id: product.id }, (cachedData) => {
+          if (!cachedData) return;
+          return {
+            ...cachedData,
+            likesCount: cachedData.likesCount + 1,
+            likes: [
+              {
+                userId: session.user.id,
+                productId: product.id,
+              },
+            ],
+          };
+        });
+        return { cachedProduct };
+      },
+      onError: (err, _args, ctx) => {
+        if (!product) return;
+        t3.products.get.setData({ id: product.id }, () => ctx?.cachedProduct);
+        toast.error(err.message);
+      },
+      // onSuccess: (response) => {
+      //   t3.products.get.setData({id: router.query.id as string}, () => ctx?.product)
+      // }
+    });
+
+  const { mutateAsync: unlike, isLoading: unliking } =
+    api.products.unlike.useMutation({
+      onMutate: async () => {
+        if (!session || !product) return;
+        await t3.products.get.cancel({ id: product.id });
+        const cachedProduct = t3.products.get.getData({
+          id: product.id,
+        });
+        t3.products.get.setData({ id: product.id }, (cachedData) => {
+          if (!cachedData) return;
+          return {
+            ...cachedData,
+            likesCount: cachedData.likesCount - 1,
+            likes: [],
+          };
+        });
+        return { cachedProduct };
+      },
+      onError: (err, _args, ctx) => {
+        if (!product) return;
+        t3.products.get.setData({ id: product.id }, () => ctx?.cachedProduct);
+        toast.error(err.message);
+      },
+      // onSuccess: (response) => {
+      //   t3.products.get.setData({id: router.query.id as string}, () => ctx?.product)
+      // }
+    });
+
+  const liked = useMemo(() => {
+    return product?.likes.some((like) => like.userId === session?.user.id);
+  }, [product, session?.user.id]);
 
   if (productError) {
     toast.error(productError.message);
@@ -118,7 +205,7 @@ const Product: NextPage = ({}) => {
         >
           <Splide aria-label="Product Images">
             {product.images.map((image, index) => (
-              <SplideSlide key={index}>
+              <SplideSlide className="relative" key={index}>
                 <SafeImage
                   url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + image}
                   alt={`Product image ${index + 1}`}
@@ -130,6 +217,35 @@ const Product: NextPage = ({}) => {
               </SplideSlide>
             ))}
           </Splide>
+          {session && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (liking || unliking) return;
+                try {
+                  if (liked) {
+                    void unlike({ id: product.id });
+                  } else {
+                    void like({ id: product.id });
+                  }
+                } catch (error) {
+                  return;
+                }
+              }}
+              className="absolute bottom-4 right-4 z-10 flex items-center gap-2 shadow-lg lg:top-4"
+            >
+              <Heart
+                className={cn(
+                  "h-5 w-5",
+                  liked ? "animate-like" : "animate-unlike",
+                )}
+                strokeWidth={1.5}
+              />
+              <p className="font-semibold">
+                ({calcCompactValue(product.likesCount)})
+              </p>
+            </Button>
+          )}
         </div>
         <div className="w-full p-6 font-semibold lg:p-0">
           <h1 className="mb-4 text-2xl leading-tight lg:text-3xl">

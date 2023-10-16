@@ -93,7 +93,7 @@ const Bag: NextPage = ({}) => {
               <Card key={index} className="lg:flex">
                 <div className="flex-1">
                   <CardHeader className="space-y-0">
-                    <FormTitle className="mb-4">Summary</FormTitle>
+                    <FormTitle className="mb-4">Bag #{bag.id}</FormTitle>
                     <div className="flex w-full flex-col text-center text-sm font-medium lg:flex-row lg:items-start lg:text-base">
                       <div className="flex flex-1">
                         <div className="flex-1 border-r border-input">
