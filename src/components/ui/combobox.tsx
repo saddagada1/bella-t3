@@ -80,14 +80,17 @@ const Combobox: React.FC<ComboboxProps> = ({
   return (
     <>
       {multi && values.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="mb-2 flex flex-wrap gap-2">
           {values.map((val, index) => (
             <p
               key={index}
               className="flex items-center rounded bg-accent px-2 py-1 text-xs font-medium text-accent-foreground"
             >
               {val.label}
-              <span onClick={() => handleDelete(val)}>
+              <span
+                className="cursor-pointer"
+                onClick={() => handleDelete(val)}
+              >
                 <X className="ml-2 h-4 w-4 text-destructive" />
               </span>
             </p>
@@ -108,13 +111,19 @@ const Combobox: React.FC<ComboboxProps> = ({
             aria-expanded={open}
             className="w-full justify-between px-3 font-sans font-normal normal-case"
           >
-            {multi
-              ? values.length
-                ? values.map((item) => item.label).join(", ")
-                : placeholder ?? "Select"
-              : value
-              ? value?.label
-              : placeholder ?? "Select"}
+            {multi ? (
+              values.length ? (
+                <span className="overflow-hidden">
+                  {values.map((item) => item.label).join(", ")}
+                </span>
+              ) : (
+                placeholder ?? "Select"
+              )
+            ) : value ? (
+              value?.label
+            ) : (
+              placeholder ?? "Select"
+            )}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

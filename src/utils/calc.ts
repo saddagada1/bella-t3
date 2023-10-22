@@ -19,3 +19,7 @@ export const calcCompactValue = (value: number) => {
     notation: "compact",
   });
 };
+
+export const calcTrimmedString = (str: string) => {
+  return str.replace(/\s+/g, " ").trim();
+};

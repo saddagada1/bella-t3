@@ -7,19 +7,8 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { productInput } from "~/utils/constants";
+import { productFilters, productInput, productSort } from "~/utils/constants";
 import { uploadObjects } from "~/utils/s3";
-
-const productFilters = z.object({
-  subcategory: z.string().optional(),
-  condition: z.string().optional(),
-  size: z.string().optional(),
-  colours: z.object({ hasSome: z.array(z.string()) }).optional(),
-  eras: z.object({ hasSome: z.array(z.string()) }).optional(),
-  styles: z.object({ hasSome: z.array(z.string()) }).optional(),
-  country: z.string().optional(),
-  sold: z.boolean().optional(),
-});
 
 export const productsRouter = createTRPCRouter({
   create: protectedProcedure
@@ -251,11 +240,13 @@ export const productsRouter = createTRPCRouter({
         cursor: z.string().optional(),
         skip: z.number().optional(),
         filter: productFilters.optional(),
+        sort: productSort.optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const products = await ctx.prisma.product.findMany({
         where: input.filter,
+        orderBy: input.sort,
         select: {
           id: true,
           images: true,

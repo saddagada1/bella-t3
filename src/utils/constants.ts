@@ -75,11 +75,47 @@ export const productInput = z.object({
   sold: z.boolean().optional(),
 });
 
+export const productFilters = z.object({
+  department: z
+    .object({ name: z.object({ in: z.array(z.string()) }) })
+    .optional(),
+  category: z
+    .object({ name: z.object({ in: z.array(z.string()) }) })
+    .optional(),
+  subcategory: z.object({ in: z.array(z.string()) }).optional(),
+  condition: z.object({ in: z.array(z.string()) }).optional(),
+  size: z.object({ in: z.array(z.string()) }).optional(),
+  sources: z
+    .object({ some: z.object({ name: z.object({ in: z.array(z.string()) }) }) })
+    .optional(),
+  designers: z
+    .object({ some: z.object({ name: z.object({ in: z.array(z.string()) }) }) })
+    .optional(),
+  colours: z.object({ hasSome: z.array(z.string()) }).optional(),
+  eras: z.object({ hasSome: z.array(z.string()) }).optional(),
+  styles: z.object({ hasSome: z.array(z.string()) }).optional(),
+  country: z.object({ in: z.array(z.string()) }).optional(),
+  sold: z.boolean().optional(),
+});
+
+export const productSort = z.object({
+  price: z.enum(["desc", "asc"]).optional(),
+  updatedAt: z.enum(["desc", "asc"]).optional(),
+});
+
 export const applicationFeePercentage = 0.08;
 
 export const paginationLimit = 50;
 
 export const lgBreakpoint = 1024;
+
+export const primaryColour = "#f4f4f5";
+
+export const secondaryColour = "#09090b";
+
+export const FORGOT_PASSWORD_PREFIX = "forgot-password:";
+
+export const VERIFY_EMAIL_PREFIX = "verify-email:";
 
 export const notificationTemplates: {
   [Action in NotificationAction]: (

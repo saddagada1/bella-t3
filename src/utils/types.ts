@@ -97,3 +97,20 @@ export interface NotificationTemplateArgs {
   CANCEL_ORDER: { orderId: string; message: string };
   UPDATE_ORDER: { orderId: string; update: string };
 }
+
+export interface ProductFilters {
+  main: Department[];
+  condition: string[];
+  size: {
+    id: number;
+    name: string;
+    categories: { name: string; sizes: string[] }[];
+  }[];
+  colours: string[];
+  eras: string[];
+  styles: string[];
+  designers: string[];
+  sources: string[];
+  country: string[];
+  sold: boolean;
+}

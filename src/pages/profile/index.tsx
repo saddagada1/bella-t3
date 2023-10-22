@@ -16,6 +16,7 @@ import ErrorView from "~/components/errorView";
 import LoadingView from "~/components/loadingView";
 import UserProfileStats from "~/components/userProfileStats";
 import UserTabs from "~/components/userTabs";
+import { env } from "~/env.mjs";
 
 const Profile: NextPage = ({}) => {
   const { width } = useWindowSize();
@@ -62,7 +63,7 @@ const Profile: NextPage = ({}) => {
         <title>Bella - Your Profile</title>
       </Head>
       <main className="flex-1 px-4 pt-2 lg:px-0 lg:py-8">
-        <Title title={profile.username ?? profile.name} className="mb-4">
+        <Title title={profile.name ?? profile.username} className="mb-4">
           <div className="flex w-fit justify-end gap-2">
             <Button asChild variant="outline">
               <Link href="/products/create">
@@ -80,7 +81,11 @@ const Profile: NextPage = ({}) => {
         </Title>
         <div className="mb-4 flex gap-4 border-b border-input pb-4 lg:gap-8">
           <SafeImage
-            url={profile.image}
+            url={
+              profile.image
+                ? env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + profile.image
+                : undefined
+            }
             alt={profile.username ?? "profile"}
             width={width > lgBreakpoint ? 200 : 125}
             className="aspect-square shrink-0 overflow-hidden rounded-full"

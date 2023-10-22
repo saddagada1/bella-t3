@@ -18,6 +18,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           toastOptions={{
             className: "font-mono",
           }}
+          position="top-center"
         />
         <Component {...pageProps} />
       </Layout>

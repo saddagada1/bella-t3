@@ -5,9 +5,9 @@ import argon2 from "argon2";
 import { type User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { v4 } from "uuid";
-// import { redis } from "~/utils/upstash";
-// import { VERIFY_EMAIL_PREFIX } from "~/utils/constants";
-// import { sendAccountVerificationEmail } from "~/utils/resend";
+import { redis } from "~/utils/upstash";
+import { VERIFY_EMAIL_PREFIX } from "~/utils/constants";
+import { sendAccountVerificationEmail } from "~/utils/resend";
 import { calcUsername } from "~/utils/calc";
 
 export const credentialsRouter = createTRPCRouter({
@@ -62,20 +62,20 @@ export const credentialsRouter = createTRPCRouter({
         });
       }
 
-      // const token = v4();
-      // await redis.set(VERIFY_EMAIL_PREFIX + token, user.id, {
-      //   ex: 1000 * 60 * 60 * 24,
-      // });
+      const token = v4();
+      await redis.set(VERIFY_EMAIL_PREFIX + token, user.id, {
+        ex: 1000 * 60 * 60 * 24,
+      });
 
-      // try {
-      //   await sendAccountVerificationEmail(
-      //     user.name ?? user.username,
-      //     user.email,
-      //     token
-      //   );
-      // } catch (error) {
-      //   await redis.del(VERIFY_EMAIL_PREFIX + token);
-      // }
+      try {
+        await sendAccountVerificationEmail(
+          user.name ?? user.username,
+          user.email,
+          token,
+        );
+      } catch (error) {
+        await redis.del(VERIFY_EMAIL_PREFIX + token);
+      }
 
       user.password = "";
 

@@ -125,7 +125,7 @@ const Pay: NextPage = ({}) => {
                   <AccordionTrigger className="pr-1 uppercase">
                     Add New Address
                   </AccordionTrigger>
-                  <AccordionContent className="overflow-visible pt-4">
+                  <AccordionContent className="pt-4">
                     <AddressForm
                       onFormSubmit={async (values, reset, resetState) => {
                         try {

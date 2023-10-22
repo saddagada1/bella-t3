@@ -47,7 +47,7 @@ import { Switch } from "~/components/ui/switch";
 import UploadImages from "~/components/ui/uploadImages/uploadImages";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
-import { putProductImage } from "~/utils/helpers";
+import { putImage } from "~/utils/helpers";
 
 const CreateProductForm: React.FC = () => {
   const router = useRouter();
@@ -123,7 +123,7 @@ const CreateProductForm: React.FC = () => {
         if (!image) {
           return false;
         }
-        return await putProductImage(url, image);
+        return await putImage(url, image);
       });
       await Promise.all(imageRequests);
       toast.success("Product Created!");

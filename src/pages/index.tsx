@@ -62,6 +62,8 @@ const Home = () => {
           <div className="mt-2 flex gap-2 lg:flex-1 lg:gap-4">
             <div className="relative aspect-video flex-1 overflow-hidden rounded-2xl lg:rounded-3xl">
               <Image
+                unoptimized
+                priority
                 src="/media/images/hero1.jpeg"
                 alt="hero-1"
                 fill
@@ -71,6 +73,8 @@ const Home = () => {
             <div className="flex flex-1 gap-2 lg:flex-col lg:gap-4">
               <div className="relative basis-1/2 overflow-hidden rounded-2xl lg:rounded-3xl">
                 <Image
+                  unoptimized
+                  priority
                   src="/media/images/hero2.jpeg"
                   alt="hero-2"
                   fill
@@ -79,6 +83,8 @@ const Home = () => {
               </div>
               <div className="relative basis-1/2 overflow-hidden rounded-2xl lg:rounded-3xl">
                 <Image
+                  unoptimized
+                  priority
                   src="/media/images/hero3.jpeg"
                   alt="hero-3"
                   fill

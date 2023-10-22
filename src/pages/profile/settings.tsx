@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useWindowSize } from "usehooks-ts";
@@ -25,6 +25,9 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { lgBreakpoint } from "~/utils/constants";
+import { putImage } from "~/utils/helpers";
+import { calcTrimmedString } from "~/utils/calc";
+import { env } from "~/env.mjs";
 
 const aboutSchema = z.object({
   name: z.string(),
@@ -42,9 +45,51 @@ const AboutForm: React.FC<{ name: string | null; bio: string | null }> = ({
       bio: "",
     },
   });
+  const t3 = api.useContext();
+  const { mutateAsync: changeName } = api.users.changeName.useMutation({
+    onError: (err) => {
+      toast.error(`${err.message}`);
+    },
+    onSuccess: (res) => {
+      t3.users.getSessionUser.setData(undefined, (cachedData) => {
+        if (!cachedData) return;
+        return {
+          ...cachedData,
+          name: res.name,
+        };
+      });
+      toast.success("Successfully Updated Name");
+      form.reset();
+    },
+  });
+  const { mutateAsync: changeBio } = api.users.changeBio.useMutation({
+    onError: (err) => {
+      toast.error(`${err.message}`);
+    },
+    onSuccess: (res) => {
+      t3.users.getSessionUser.setData(undefined, (cachedData) => {
+        if (!cachedData) return;
+        return {
+          ...cachedData,
+          bio: res.bio,
+        };
+      });
+      toast.success("Successfully Updated Bio");
+      form.reset();
+    },
+  });
 
-  const onSubmit = (values: z.infer<typeof aboutSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof aboutSchema>) => {
+    if (calcTrimmedString(values.name) !== "") {
+      await changeName({
+        name: calcTrimmedString(values.name),
+      });
+    }
+    if (calcTrimmedString(values.bio) !== "") {
+      await changeBio({
+        bio: calcTrimmedString(values.bio),
+      });
+    }
   };
 
   return (
@@ -124,9 +169,20 @@ const SecurityForm: React.FC = () => {
       confirmPassword: "",
     },
   });
+  const { mutateAsync: changePassword } = api.users.changePassword.useMutation({
+    onError: (err) => {
+      toast.error(`${err.message}`);
+    },
+    onSuccess: () => {
+      toast.success("Successfully Updated Password");
+      form.reset();
+    },
+  });
 
-  const onSubmit = (values: z.infer<typeof securitySchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof securitySchema>) => {
+    await changePassword({
+      password: values.password,
+    });
   };
 
   return (
@@ -199,9 +255,65 @@ const GeneralForm: React.FC<{ email: string; username: string }> = ({
       username: "",
     },
   });
+  const t3 = api.useContext();
+  const { mutateAsync: changeEmail } = api.users.changeEmail.useMutation({
+    onError: (err) => {
+      toast.error(`${err.message}`);
+    },
+    onSuccess: (res) => {
+      if (!res.user) {
+        form.setError("email", {
+          type: "manual",
+          message: res.error.message,
+        });
+        return;
+      }
+      t3.users.getSessionUser.setData(undefined, (cachedData) => {
+        if (!cachedData) return;
+        return {
+          ...cachedData,
+          email: res.user.email,
+        };
+      });
+      toast.success("Successfully Updated Email");
+      form.reset();
+    },
+  });
+  const { mutateAsync: changeUsername } = api.users.changeUsername.useMutation({
+    onError: (err) => {
+      toast.error(`${err.message}`);
+    },
+    onSuccess: (res) => {
+      if (!res.user) {
+        form.setError("username", {
+          type: "manual",
+          message: res.error.message,
+        });
+        return;
+      }
+      t3.users.getSessionUser.setData(undefined, (cachedData) => {
+        if (!cachedData) return;
+        return {
+          ...cachedData,
+          username: res.user.username,
+        };
+      });
+      toast.success("Successfully Updated Username");
+      form.reset();
+    },
+  });
 
-  const onSubmit = (values: z.infer<typeof generalSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof generalSchema>) => {
+    if (calcTrimmedString(values.username) !== "") {
+      await changeUsername({
+        username: calcTrimmedString(values.username),
+      });
+    }
+    if (calcTrimmedString(values.email) !== "") {
+      await changeEmail({
+        email: calcTrimmedString(values.email),
+      });
+    }
   };
 
   return (
@@ -257,6 +369,38 @@ const GeneralForm: React.FC<{ email: string; username: string }> = ({
 const PictureForm: React.FC<{ image: string | null }> = ({ image }) => {
   const { width } = useWindowSize();
   const [profileImage, setProfileImage] = useState<File>();
+  const t3 = api.useContext();
+  const { mutateAsync: changeProfileImage, isLoading: changingProfileImage } =
+    api.users.changeImage.useMutation({
+      onError: (err) => {
+        toast.error(err.message);
+      },
+      onSuccess: async (res) => {
+        if (!profileImage) return;
+        const response = await putImage(res.url, profileImage);
+        if (!response) {
+          toast.error("Could Not Change Profile Image");
+          return;
+        }
+        t3.users.getSessionUser.setData(undefined, (cachedData) => {
+          if (!cachedData) return;
+          return {
+            ...cachedData,
+            image: env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + res.image,
+          };
+        });
+        toast.success("Changed Profile Image");
+      },
+    });
+  const { mutateAsync: deleteProfileImage, isLoading: deletingProfileImage } =
+    api.users.deleteImage.useMutation({
+      onError: (err) => {
+        toast.error(err.message);
+      },
+      onSuccess: () => {
+        toast.success("Deleted Profile Image");
+      },
+    });
 
   const handleProfileImageUpload = (file?: File) => {
     const accept = "image/jpeg image/jpg image/png";
@@ -272,28 +416,15 @@ const PictureForm: React.FC<{ image: string | null }> = ({ image }) => {
     setProfileImage(file);
   };
 
-  //   const handleSaveProfileImage = async () => {
-  //     if (!profileImage) return;
-  //     try {
-  //     //   const url = await changeProfileImage();
-  //     //   const response = await axios.put(url, profileImage);
-  //     //   if (response.status !== 200) {
-  //     //     toast.error("Could Not Change Profile Image");
-  //     //   }
-  //       toast.success("Changed Profile Image");
-  //     } catch (error) {
-  //       toast.error("Could Not Change Profile Image");
-  //     }
-  //   };
+  const handleSaveProfileImage = () => {
+    if (!profileImage) return;
+    void changeProfileImage();
+  };
 
-  //   const handleDeleteProfileImage = async () => {
-  //     try {
-  //       //await deleteProfileImage();
-  //       toast.success("Deleted Profile Image");
-  //     } catch (error) {
-  //       toast.error("Could Not Delete Profile Image");
-  //     }
-  //   };
+  const handleDeleteProfileImage = () => {
+    if (profileImage) setProfileImage(undefined);
+    if (image) void deleteProfileImage();
+  };
 
   return (
     <div className="flex-1">
@@ -304,7 +435,7 @@ const PictureForm: React.FC<{ image: string | null }> = ({ image }) => {
           className="relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-full border border-dashed font-mono font-medium uppercase text-muted-foreground"
         >
           <input
-            className="absolute h-full w-full opacity-0"
+            className="absolute h-full w-full cursor-pointer opacity-0"
             type="file"
             name="file"
             placeholder=""
@@ -321,7 +452,9 @@ const PictureForm: React.FC<{ image: string | null }> = ({ image }) => {
             <Image
               unoptimized
               src={
-                profileImage ? URL.createObjectURL(profileImage) : image ?? ""
+                profileImage
+                  ? URL.createObjectURL(profileImage)
+                  : env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + image ?? ""
               }
               alt="Profile Image Preview"
               fill
@@ -330,14 +463,29 @@ const PictureForm: React.FC<{ image: string | null }> = ({ image }) => {
           )}
         </div>
         <div className="flex w-full gap-4">
-          <Button size="form">Update</Button>
-          <Button
-            disabled={!image || !profileImage}
-            variant="destructive"
-            size="form"
-          >
-            Delete
-          </Button>
+          {changingProfileImage ? (
+            <ButtonLoading disabled size="form" />
+          ) : (
+            <Button
+              onClick={() => handleSaveProfileImage()}
+              disabled={deletingProfileImage}
+              size="form"
+            >
+              Update
+            </Button>
+          )}
+          {deletingProfileImage ? (
+            <ButtonLoading disabled size="form" />
+          ) : (
+            <Button
+              disabled={changingProfileImage}
+              onClick={() => handleDeleteProfileImage()}
+              variant="destructive"
+              size="form"
+            >
+              Delete
+            </Button>
+          )}
         </div>
       </div>
     </div>
@@ -350,6 +498,14 @@ const Settings: NextPage = ({}) => {
     isLoading: fetchingProfile,
     error: profileError,
   } = api.users.getSessionUser.useQuery();
+
+  useEffect(() => {
+    if (!profile) return;
+
+    if (!profile.verified) {
+      toast.error("Please Verify Your Account Before Proceeding.");
+    }
+  }, [profile]);
 
   if (fetchingProfile) {
     return <LoadingView />;
@@ -364,6 +520,7 @@ const Settings: NextPage = ({}) => {
       />
     );
   }
+
   return (
     <>
       <Head>
