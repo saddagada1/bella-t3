@@ -222,6 +222,29 @@ export const ordersRouter = createTRPCRouter({
       }
     }),
 
+  updateUserOrder: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        addressId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.order.update({
+          where: { id: input.id, userId: ctx.session.user.id },
+          data: {
+            addressId: input.addressId,
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable To Update Order",
+        });
+      }
+    }),
+
   getUserOrders: protectedProcedure
     .input(
       z.object({
@@ -302,5 +325,26 @@ export const ordersRouter = createTRPCRouter({
         next: next,
         items: orders,
       };
+    }),
+
+  getUserOrder: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const order = await ctx.prisma.order.findUnique({
+        where: { id: input.id, userId: ctx.session.user.id },
+      });
+
+      if (!order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order Not Found",
+        });
+      }
+
+      return order;
     }),
 });

@@ -2,70 +2,75 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { Sheet, SheetTrigger, SheetContent } from "./ui/sheet";
-import { ArrowRight, ChevronDown } from "lucide-react";
-import { useRef } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useRef, useState } from "react";
 import SearchInput from "./searchInput";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { departments, sources } from "~/utils/constants";
+import { departments, presetFilters, sources } from "~/utils/constants";
 import { api } from "~/utils/api";
 import { toast } from "sonner";
 import NotificationCard from "./notificationCard";
 import { NoContent } from "./ui/typography/noContent";
-
-const MenuLink: React.FC<{ href: string; label: string }> = ({
-  href,
-  label,
-}) => {
-  return (
-    <Link
-      href={href}
-      className="flex items-center justify-between border-b border-input pb-4 font-sans text-sm font-medium"
-    >
-      {label}
-      <ArrowRight className="h-4 w-4" />
-    </Link>
-  );
-};
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 
 const SideMenu: React.FC<{ container: HTMLElement }> = ({ container }) => {
   const { status: sessionStatus } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={(o) => setIsOpen(o)}>
       <SheetTrigger asChild>
         <Button variant="outline">Menu</Button>
       </SheetTrigger>
       <SheetContent
         container={container}
-        className="flex h-screen flex-col"
+        className="no-scrollbar flex h-screen flex-col overflow-y-scroll"
         side="left"
       >
-        <Link href="/" className="font-display text-5xl">
-          bella
-        </Link>
+        <h1 className="font-display text-5xl">bella</h1>
         {sessionStatus === "authenticated" ? (
           <div className="my-4 grid grid-cols-2 grid-rows-3 gap-2">
-            <Button asChild variant="outline">
+            <Button onClick={() => setIsOpen(false)} asChild variant="outline">
               <Link href="/profile">Profile</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button onClick={() => setIsOpen(false)} asChild variant="outline">
               <Link href="/store">Store</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button onClick={() => setIsOpen(false)} asChild variant="outline">
               <Link href="/orders">Orders</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button onClick={() => setIsOpen(false)} asChild variant="outline">
               <Link href="/settings">Settings</Link>
             </Button>
-            <Button className="col-span-2" asChild variant="outline">
+            <Button
+              onClick={() => setIsOpen(false)}
+              className="col-span-2"
+              asChild
+              variant="outline"
+            >
               <Link href="/notifications">Notifications</Link>
             </Button>
           </div>
         ) : (
           <div className="my-4 flex gap-2">
-            <Button className="flex-1" asChild variant="outline">
+            <Button
+              onClick={() => setIsOpen(false)}
+              className="flex-1"
+              asChild
+              variant="outline"
+            >
               <Link href="/login">Login</Link>
             </Button>
-            <Button className="flex-1" asChild variant="outline">
+            <Button
+              onClick={() => setIsOpen(false)}
+              className="flex-1"
+              asChild
+              variant="outline"
+            >
               <Link href="/sign-up">Sign Up</Link>
             </Button>
           </div>
@@ -74,21 +79,217 @@ const SideMenu: React.FC<{ container: HTMLElement }> = ({ container }) => {
           <h2 className="mb-8 font-mono text-xl font-medium uppercase">
             Browse Inventory
           </h2>
-          <MenuLink href="/profile" label="Designers" />
-          <MenuLink href="/profile" label="Sources" />
-          <MenuLink href="/profile" label="Menswear" />
-          <MenuLink href="/profile" label="Womenswear" />
-          <MenuLink href="/profile" label="Footwear" />
-          <MenuLink href="/profile" label="Accessories" />
+          <Accordion type="single" collapsible>
+            <Link
+              onClick={() => setIsOpen(false)}
+              href="/designers"
+              className="flex items-center justify-between border-b py-4 font-mono text-sm font-medium uppercase hover:underline lg:text-base"
+            >
+              Designers
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+            <AccordionItem value="sources">
+              <AccordionTrigger className="!text-sm uppercase">
+                Sources
+              </AccordionTrigger>
+              <AccordionContent>
+                {sources.map((source, index) => (
+                  <Button
+                    onClick={() => setIsOpen(false)}
+                    asChild
+                    variant="link"
+                    key={index}
+                    className="pr-0"
+                  >
+                    <Link
+                      className="w-full justify-between"
+                      href={{
+                        pathname: "/products",
+                        query: {
+                          filters: JSON.stringify(
+                            presetFilters.sources[source.toLowerCase()],
+                          ),
+                        },
+                      }}
+                    >
+                      {source}
+                      <ChevronRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="unisex">
+              <AccordionTrigger className="!text-sm uppercase">
+                Unisex
+              </AccordionTrigger>
+              <AccordionContent>
+                {departments
+                  .find((department) => department.name === "Unisex")
+                  ?.categories.map((category, index) => (
+                    <Button
+                      onClick={() => setIsOpen(false)}
+                      asChild
+                      variant="link"
+                      key={index}
+                      className="pr-0"
+                    >
+                      <Link
+                        className="w-full justify-between"
+                        href={{
+                          pathname: "/products",
+                          query: {
+                            filters: JSON.stringify(
+                              presetFilters.unisex[category.name.toLowerCase()],
+                            ),
+                          },
+                        }}
+                      >
+                        {category.name}
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ))}
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="menswear">
+              <AccordionTrigger className="!text-sm uppercase">
+                Menswear
+              </AccordionTrigger>
+              <AccordionContent>
+                {departments
+                  .find((department) => department.name === "Men")
+                  ?.categories.map((category, index) => (
+                    <Button
+                      onClick={() => setIsOpen(false)}
+                      asChild
+                      variant="link"
+                      key={index}
+                      className="pr-0"
+                    >
+                      <Link
+                        className="w-full justify-between"
+                        href={{
+                          pathname: "/products",
+                          query: {
+                            filters: JSON.stringify(
+                              presetFilters.unisex[category.name.toLowerCase()],
+                            ),
+                          },
+                        }}
+                      >
+                        {category.name}
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ))}
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="womenswear">
+              <AccordionTrigger className="!text-sm uppercase">
+                Womenswear
+              </AccordionTrigger>
+              <AccordionContent>
+                {departments
+                  .find((department) => department.name === "Women")
+                  ?.categories.map((category, index) => (
+                    <Button
+                      onClick={() => setIsOpen(false)}
+                      asChild
+                      variant="link"
+                      key={index}
+                      className="pr-0"
+                    >
+                      <Link
+                        className="w-full justify-between"
+                        href={{
+                          pathname: "/products",
+                          query: {
+                            filters: JSON.stringify(
+                              presetFilters.unisex[category.name.toLowerCase()],
+                            ),
+                          },
+                        }}
+                      >
+                        {category.name}
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ))}
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="footwear">
+              <AccordionTrigger className="!text-sm uppercase">
+                Footwear
+              </AccordionTrigger>
+              <AccordionContent>
+                <Button
+                  onClick={() => setIsOpen(false)}
+                  asChild
+                  variant="link"
+                  className="pr-0"
+                >
+                  <Link
+                    className="w-full justify-between"
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        filters: JSON.stringify(presetFilters.footwear.unisex),
+                      },
+                    }}
+                  >
+                    Unisex
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  onClick={() => setIsOpen(false)}
+                  asChild
+                  variant="link"
+                  className="pr-0"
+                >
+                  <Link
+                    className="w-full justify-between"
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        filters: JSON.stringify(presetFilters.footwear.men),
+                      },
+                    }}
+                  >
+                    Men
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  onClick={() => setIsOpen(false)}
+                  asChild
+                  variant="link"
+                  className="pr-0"
+                >
+                  <Link
+                    className="w-full justify-between"
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        filters: JSON.stringify(presetFilters.footwear.women),
+                      },
+                    }}
+                  >
+                    Women
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
-        {/* <div className="my-6 flex flex-col space-y-4 text-xs uppercase text-muted-foreground">
-          <Link href="/profile">Help</Link>
-          <Link href="/profile">FAQ</Link>
-          <Link href="/profile">About</Link>
-        </div> */}
         {sessionStatus === "authenticated" && (
           <Button
-            onClick={() => void signOut()}
+            onClick={() => {
+              void signOut();
+              setIsOpen(false);
+            }}
             className="w-fit"
             variant="destructive"
           >
@@ -113,10 +314,10 @@ const NavMenu = () => {
         <HoverCard openDelay={100} closeDelay={100}>
           <HoverCardTrigger asChild>
             <Button variant="outline" asChild>
-              <Link href="/menswear">
+              <p className="cursor-pointer">
                 Sources
                 <ChevronDown className="ml-2 h-4 w-4" />
-              </Link>
+              </p>
             </Button>
           </HoverCardTrigger>
           <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
@@ -127,7 +328,18 @@ const NavMenu = () => {
                 className="justify-start"
                 key={index}
               >
-                <Link href="/menswear">{source}</Link>
+                <Link
+                  href={{
+                    pathname: "/products",
+                    query: {
+                      filters: JSON.stringify(
+                        presetFilters.sources[source.toLowerCase()],
+                      ),
+                    },
+                  }}
+                >
+                  {source}
+                </Link>
               </Button>
             ))}
           </HoverCardContent>
@@ -135,10 +347,45 @@ const NavMenu = () => {
         <HoverCard openDelay={100} closeDelay={100}>
           <HoverCardTrigger asChild>
             <Button variant="outline" asChild>
-              <Link href="/menswear">
+              <p className="cursor-pointer">
+                Unisex
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </p>
+            </Button>
+          </HoverCardTrigger>
+          <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
+            {departments
+              .find((department) => department.name === "Unisex")
+              ?.categories.map((category, index) => (
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="justify-start"
+                  key={index}
+                >
+                  <Link
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        filters: JSON.stringify(
+                          presetFilters.unisex[category.name.toLowerCase()],
+                        ),
+                      },
+                    }}
+                  >
+                    {category.name}
+                  </Link>
+                </Button>
+              ))}
+          </HoverCardContent>
+        </HoverCard>
+        <HoverCard openDelay={100} closeDelay={100}>
+          <HoverCardTrigger asChild>
+            <Button variant="outline" asChild>
+              <p className="cursor-pointer">
                 Menswear
                 <ChevronDown className="ml-2 h-4 w-4" />
-              </Link>
+              </p>
             </Button>
           </HoverCardTrigger>
           <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
@@ -151,7 +398,18 @@ const NavMenu = () => {
                   className="justify-start"
                   key={index}
                 >
-                  <Link href="/menswear">{category.name}</Link>
+                  <Link
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        filters: JSON.stringify(
+                          presetFilters.men[category.name.toLowerCase()],
+                        ),
+                      },
+                    }}
+                  >
+                    {category.name}
+                  </Link>
                 </Button>
               ))}
           </HoverCardContent>
@@ -159,10 +417,10 @@ const NavMenu = () => {
         <HoverCard openDelay={100} closeDelay={100}>
           <HoverCardTrigger asChild>
             <Button variant="outline" asChild>
-              <Link href="/menswear">
+              <p className="cursor-pointer">
                 Womenswear
                 <ChevronDown className="ml-2 h-4 w-4" />
-              </Link>
+              </p>
             </Button>
           </HoverCardTrigger>
           <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
@@ -175,17 +433,70 @@ const NavMenu = () => {
                   className="justify-start"
                   key={index}
                 >
-                  <Link href="/menswear">{category.name}</Link>
+                  <Link
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        filters: JSON.stringify(
+                          presetFilters.women[category.name.toLowerCase()],
+                        ),
+                      },
+                    }}
+                  >
+                    {category.name}
+                  </Link>
                 </Button>
               ))}
           </HoverCardContent>
         </HoverCard>
-        <Button variant="outline" asChild>
-          <Link href="/menswear">Footwear</Link>
-        </Button>
-        <Button variant="outline" asChild>
-          <Link href="/menswear">Accessories</Link>
-        </Button>
+        <HoverCard openDelay={100} closeDelay={100}>
+          <HoverCardTrigger asChild>
+            <Button variant="outline" asChild>
+              <p className="cursor-pointer">
+                Footwear
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </p>
+            </Button>
+          </HoverCardTrigger>
+          <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
+            <Button asChild variant="ghost" className="justify-start">
+              <Link
+                href={{
+                  pathname: "/products",
+                  query: {
+                    filters: JSON.stringify(presetFilters.footwear.unisex),
+                  },
+                }}
+              >
+                Unisex
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" className="justify-start">
+              <Link
+                href={{
+                  pathname: "/products",
+                  query: {
+                    filters: JSON.stringify(presetFilters.footwear.men),
+                  },
+                }}
+              >
+                Men
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" className="justify-start">
+              <Link
+                href={{
+                  pathname: "/products",
+                  query: {
+                    filters: JSON.stringify(presetFilters.footwear.women),
+                  },
+                }}
+              >
+                Women
+              </Link>
+            </Button>
+          </HoverCardContent>
+        </HoverCard>
       </div>
     </div>
   );
@@ -278,16 +589,20 @@ const Navbar: React.FC = () => {
                   </Button>
                 </HoverCardTrigger>
                 <HoverCardContent className="flex w-fit flex-col gap-4">
-                  <Button asChild variant="secondary" className="justify-start">
+                  <Button asChild variant="ghost" className="justify-start">
                     <Link href="/store">Store</Link>
                   </Button>
-                  <Button asChild variant="secondary" className="justify-start">
+                  <Button asChild variant="ghost" className="justify-start">
                     <Link href="/orders">Orders</Link>
                   </Button>
-                  <Button asChild variant="secondary" className="justify-start">
+                  <Button asChild variant="ghost" className="justify-start">
                     <Link href="/profile">View Profile</Link>
                   </Button>
-                  <Button onClick={() => void signOut()} variant="destructive">
+                  <Button
+                    onClick={() => void signOut()}
+                    variant="ghost"
+                    className="justify-start hover:bg-destructive hover:text-background"
+                  >
                     Sign Out
                   </Button>
                 </HoverCardContent>

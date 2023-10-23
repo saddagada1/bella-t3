@@ -13,9 +13,10 @@ import { toast } from "sonner";
 
 interface OrderCardProps extends HTMLAttributes<HTMLDivElement> {
   data: UserOrder | StoreOrder;
+  onUpdate?: () => void;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ data, ...rest }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ data, onUpdate, ...rest }) => {
   const [order, setOrder] = useState(data);
   const { className, ...props } = rest;
   const { mutateAsync: cancelOrder } = api.orders.cancelOrder.useMutation({
@@ -137,8 +138,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ data, ...rest }) => {
             disabled={order.orderStatus !== "in_progress"}
             size="form"
             variant="outline"
+            onClick={() => onUpdate && onUpdate()}
           >
-            Edit
+            Update
           </Button>
           <Button
             onClick={() => {

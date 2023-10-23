@@ -38,18 +38,17 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
 
-    const stripeOrder = event.data.object as Stripe.Checkout.Session;
-
-    if (!stripeOrder.client_reference_id) {
-      res.status(400).send(`Webhook Error: No Client Reference Id`);
-      return;
-    }
-    const reference = JSON.parse(
-      stripeOrder.client_reference_id,
-    ) as CheckoutReference;
-
     try {
       if (event.type === "checkout.session.completed") {
+        const stripeOrder = event.data.object as Stripe.Checkout.Session;
+        if (!stripeOrder.client_reference_id) {
+          res.status(400).send(`Webhook Error: No Client Reference Id`);
+          return;
+        }
+        const reference = JSON.parse(
+          stripeOrder.client_reference_id,
+        ) as CheckoutReference;
+
         if (
           !stripeOrder.payment_intent ||
           typeof stripeOrder.payment_intent !== "string"
@@ -144,20 +143,30 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
             message: notificationTemplates.NEW_ORDER({}),
           },
         });
-      } else if (
-        event.type === "checkout.session.async_payment_succeeded" ||
-        event.type === "payment_intent.succeeded"
-      ) {
+      } else if (event.type === "payment_intent.succeeded") {
+        const stripeOrder = event.data.object as Stripe.PaymentIntent;
         const order = await prisma.order.update({
-          where: { storeId_userId_addressId: reference },
+          where: { paymentId: stripeOrder.id },
           data: {
             paymentStatus: "completed",
+          },
+          include: {
+            store: {
+              select: {
+                userId: true,
+              },
+            },
+            user: {
+              select: {
+                id: true,
+              },
+            },
           },
         });
         await prisma.notification.create({
           data: {
-            notifierId: reference.userId,
-            notifiedId: reference.sellerId,
+            notifierId: order.user.id,
+            notifiedId: order.store.userId,
             schemaId: order.id,
             action: "UPDATE_ORDER",
             message: notificationTemplates.UPDATE_ORDER({
@@ -168,8 +177,8 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
         });
         await prisma.notification.create({
           data: {
-            notifierId: reference.sellerId,
-            notifiedId: reference.userId,
+            notifierId: order.store.userId,
+            notifiedId: order.user.id,
             schemaId: order.id,
             action: "UPDATE_ORDER",
             message: notificationTemplates.UPDATE_ORDER({
@@ -178,20 +187,30 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
             }),
           },
         });
-      } else if (
-        event.type === "checkout.session.async_payment_failed" ||
-        event.type === "payment_intent.payment_failed"
-      ) {
+      } else if (event.type === "payment_intent.payment_failed") {
+        const stripeOrder = event.data.object as Stripe.PaymentIntent;
         const order = await prisma.order.update({
-          where: { storeId_userId_addressId: reference },
+          where: { paymentId: stripeOrder.id },
           data: {
             paymentStatus: "failed",
+          },
+          include: {
+            store: {
+              select: {
+                userId: true,
+              },
+            },
+            user: {
+              select: {
+                id: true,
+              },
+            },
           },
         });
         await prisma.notification.create({
           data: {
-            notifierId: reference.userId,
-            notifiedId: reference.sellerId,
+            notifierId: order.user.id,
+            notifiedId: order.store.userId,
             schemaId: order.id,
             action: "UPDATE_ORDER",
             message: notificationTemplates.UPDATE_ORDER({
@@ -202,8 +221,8 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
         });
         await prisma.notification.create({
           data: {
-            notifierId: reference.sellerId,
-            notifiedId: reference.userId,
+            notifierId: order.store.userId,
+            notifiedId: order.user.id,
             schemaId: order.id,
             action: "UPDATE_ORDER",
             message: notificationTemplates.UPDATE_ORDER({

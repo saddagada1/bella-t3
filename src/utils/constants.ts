@@ -14,6 +14,7 @@ import {
   type Designer,
   type Colour,
   type NotificationTemplateArgs,
+  type ProductFilters as ProductFiltersType,
 } from "./types";
 import { z } from "zod";
 import { type NotificationAction } from "@prisma/client";
@@ -74,6 +75,109 @@ export const productInput = z.object({
   price: z.string().min(1, "Required"),
   sold: z.boolean().optional(),
 });
+
+export const emptyFilters = {
+  main: [],
+  size: [],
+  styles: [],
+  eras: [],
+  sources: [],
+  designers: [],
+  condition: [],
+  colours: [],
+  country: [],
+  sold: false,
+};
+
+export const presetFilters = {
+  sources: sources.reduce(
+    (o, key) =>
+      Object.assign(o, {
+        [key.toLowerCase()]: { ...emptyFilters, sources: [key] },
+      }),
+    {} as Record<string, ProductFiltersType>,
+  ),
+  unisex: departments
+    .find((department) => department.name === "Unisex")!
+    .categories.reduce(
+      (o, key) =>
+        Object.assign(o, {
+          [key.name.toLowerCase()]: {
+            ...emptyFilters,
+            main: [{ id: 1, name: "Unisex", categories: [key] }],
+          },
+        }),
+      {} as Record<string, ProductFiltersType>,
+    ),
+  men: departments
+    .find((department) => department.name === "Men")!
+    .categories.reduce(
+      (o, key) =>
+        Object.assign(o, {
+          [key.name.toLowerCase()]: {
+            ...emptyFilters,
+            main: [{ id: 2, name: "Men", categories: [key] }],
+          },
+        }),
+      {} as Record<string, ProductFiltersType>,
+    ),
+  women: departments
+    .find((department) => department.name === "Women")!
+    .categories.reduce(
+      (o, key) =>
+        Object.assign(o, {
+          [key.name.toLowerCase()]: {
+            ...emptyFilters,
+            main: [{ id: 3, name: "Women", categories: [key] }],
+          },
+        }),
+      {} as Record<string, ProductFiltersType>,
+    ),
+  footwear: {
+    unisex: {
+      ...emptyFilters,
+      main: departments
+        .flatMap((d) =>
+          d.name === "Unisex"
+            ? {
+                id: d.id,
+                name: d.name,
+                categories: d.categories.filter((c) => c.name === "Footwear"),
+              }
+            : undefined,
+        )
+        .filter((o) => o !== undefined),
+    },
+    men: {
+      ...emptyFilters,
+      main: departments
+        .flatMap((d) =>
+          d.name === "Men"
+            ? {
+                id: d.id,
+                name: d.name,
+                categories: d.categories.filter((c) => c.name === "Footwear"),
+              }
+            : undefined,
+        )
+        .filter((o) => o !== undefined),
+    },
+    women: {
+      ...emptyFilters,
+      main: departments
+        .flatMap((d) =>
+          d.name === "Women"
+            ? {
+                id: d.id,
+                name: d.name,
+                categories: d.categories.filter((c) => c.name === "Footwear"),
+              }
+            : undefined,
+        )
+        .filter((o) => o !== undefined),
+    },
+  },
+};
 
 export const productFilters = z.object({
   department: z

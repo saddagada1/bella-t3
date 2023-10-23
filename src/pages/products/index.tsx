@@ -8,6 +8,12 @@ import Filters from "~/components/filters";
 import LoadingView from "~/components/loadingView";
 import ProductsGrid from "~/components/productsGrid";
 import ScrollPagination from "~/components/scrollPagination";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 import { api } from "~/utils/api";
 import {
   paginationLimit,
@@ -178,10 +184,20 @@ const Products: NextPage = ({}) => {
       <Head>
         <title>Bella - Products</title>
       </Head>
-      <main className="relative flex flex-1 flex-col p-6 lg:flex-row lg:gap-8 lg:px-0">
-        <div className="w-1/4 space-y-4 border-r pr-8">
+      <main className="relative flex flex-1 flex-col gap-6 px-6 pb-6 lg:flex-row lg:gap-8 lg:px-0 lg:pt-6">
+        <div className="hidden w-1/4 border-r pr-8 lg:block">
           <Filters onFilter={onFilter} isFiltering={fetchingProducts} />
         </div>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="filters">
+            <AccordionTrigger className="!text-sm uppercase">
+              Filters
+            </AccordionTrigger>
+            <AccordionContent>
+              <Filters onFilter={onFilter} isFiltering={fetchingProducts} />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <div className="h-full flex-1">
           {fetchingProducts ? (
             <LoadingView />

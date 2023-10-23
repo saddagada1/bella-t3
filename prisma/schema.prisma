@@ -108,7 +108,6 @@ model Order {
     createdAt     DateTime      @default(now())
     updatedAt     DateTime      @updatedAt
 
-    @@unique([storeId, userId, addressId])
     @@index([storeId])
     @@index([userId])
     @@index([addressId])

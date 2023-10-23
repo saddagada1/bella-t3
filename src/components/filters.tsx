@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
   Accordion,
@@ -21,6 +22,7 @@ import {
   conditions,
   departments,
   designers,
+  emptyFilters,
   eras,
   sources,
   styles,
@@ -33,19 +35,21 @@ interface FiltersProps {
 }
 
 const Filters: React.FC<FiltersProps> = ({ onFilter, isFiltering }) => {
-  const [filters, setFilters] = useState<ProductFilters>({
-    main: [],
-    size: [],
-    styles: [],
-    eras: [],
-    sources: [],
-    designers: [],
-    condition: [],
-    colours: [],
-    country: [],
-    sold: false,
-  });
+  const router = useRouter();
+  const [filters, setFilters] = useState<ProductFilters>(emptyFilters);
   const [sort, setSort] = useState("relevance");
+
+  useEffect(() => {
+    const data = router.query.filters;
+    if (data && typeof data === "string" && data !== JSON.stringify(filters)) {
+      const init = JSON.parse(data) as ProductFilters;
+      console.log(init);
+      setFilters(init);
+      onFilter && onFilter(init, sort);
+      void router.replace({ query: {} }, undefined, { shallow: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   useEffect(() => {
     const main = filters.main.map((d) => ({
@@ -76,18 +80,31 @@ const Filters: React.FC<FiltersProps> = ({ onFilter, isFiltering }) => {
 
   return (
     <>
-      <Select onValueChange={(value) => setSort(value)} defaultValue={sort}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="relevance">Sort By: Relevance</SelectItem>
-          <SelectItem value="lowPrice">Sort By: Low Price</SelectItem>
-          <SelectItem value="highPrice">Sort By: High Price</SelectItem>
-          <SelectItem value="new">Sort By: New</SelectItem>
-        </SelectContent>
-      </Select>
-      <Accordion className="border-t" type="single" collapsible>
+      <div className="mb-4 flex gap-2">
+        <Button
+          variant="destructive"
+          onClick={() => {
+            setFilters(emptyFilters);
+            setSort("relevance");
+            onFilter && onFilter(emptyFilters, "relevance");
+          }}
+          disabled={JSON.stringify(filters) === JSON.stringify(emptyFilters)}
+        >
+          Clear
+        </Button>
+        <Select onValueChange={(value) => setSort(value)} defaultValue={sort}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="relevance">Sort By: Relevance</SelectItem>
+            <SelectItem value="lowPrice">Sort By: Low Price</SelectItem>
+            <SelectItem value="highPrice">Sort By: High Price</SelectItem>
+            <SelectItem value="new">Sort By: New</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Accordion className="mb-4 border-t" type="single" collapsible>
         <AccordionItem value="categories">
           <AccordionTrigger className="!text-sm uppercase">
             Category
@@ -772,7 +789,17 @@ const Filters: React.FC<FiltersProps> = ({ onFilter, isFiltering }) => {
       {isFiltering ? (
         <ButtonLoading size="form" />
       ) : (
-        <Button onClick={() => onFilter && onFilter(filters, sort)} size="form">
+        <Button
+          onClick={() => {
+            onFilter && onFilter(filters, sort);
+            void router.replace(
+              { query: { filters: JSON.stringify(filters) } },
+              undefined,
+              { shallow: true },
+            );
+          }}
+          size="form"
+        >
           Filter
         </Button>
       )}

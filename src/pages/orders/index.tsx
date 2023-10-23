@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "sonner";
 import ErrorView from "~/components/errorView";
@@ -12,6 +13,7 @@ import { api } from "~/utils/api";
 import { paginationLimit } from "~/utils/constants";
 
 const Orders: NextPage = ({}) => {
+  const router = useRouter();
   const [page, setPage] = useState(0);
   const {
     data: orders,
@@ -69,7 +71,13 @@ const Orders: NextPage = ({}) => {
           >
             <div className="w-full space-y-4">
               {data.items.map((order, index) => (
-                <OrderCard key={index} data={order} />
+                <OrderCard
+                  key={index}
+                  data={order}
+                  onUpdate={() =>
+                    void router.push(`/orders/update?id=${order.id}`)
+                  }
+                />
               ))}
             </div>
           </Pagination>

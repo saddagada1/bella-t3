@@ -275,9 +275,17 @@ const AddressForm: React.FC<AddressFormProps> = ({
         </div>
         <div className="lg:flex lg:justify-end lg:border-t lg:pt-4">
           {form.formState.isSubmitting ? (
-            <ButtonLoading disabled size="form" className="lg:w-1/5" />
+            <ButtonLoading
+              disabled
+              size="form"
+              className="min-w-fit px-4 lg:w-1/5"
+            />
           ) : (
-            <Button size="form" type="submit" className="lg:w-1/5">
+            <Button
+              size="form"
+              type="submit"
+              className="min-w-fit px-4 lg:w-1/5"
+            >
               {buttonLabel ?? "Edit"}
             </Button>
           )}
