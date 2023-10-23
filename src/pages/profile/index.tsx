@@ -55,8 +55,6 @@ const Profile: NextPage = ({}) => {
     );
   }
 
-  console.log(new Date(profile.updatedAt));
-
   return (
     <>
       <Head>

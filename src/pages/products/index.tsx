@@ -188,7 +188,7 @@ const Products: NextPage = ({}) => {
         <div className="hidden w-1/4 border-r pr-8 lg:block">
           <Filters onFilter={onFilter} isFiltering={fetchingProducts} />
         </div>
-        <Accordion type="single" collapsible>
+        <Accordion className="lg:hidden" type="single" collapsible>
           <AccordionItem value="filters">
             <AccordionTrigger className="!text-sm uppercase">
               Filters

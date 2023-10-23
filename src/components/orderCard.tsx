@@ -4,7 +4,7 @@ import { FormTitle } from "./ui/form";
 import { ValueLabel } from "./ui/typography/valueLabel";
 import Link from "next/link";
 import ProductCard from "./productCard";
-import { Button } from "./ui/button";
+import { Button, ButtonLoading } from "./ui/button";
 import { calcRelativeTime } from "~/utils/calc";
 import { cn } from "~/utils/shadcn/utils";
 import { useState, type HTMLAttributes } from "react";
@@ -14,19 +14,26 @@ import { toast } from "sonner";
 interface OrderCardProps extends HTMLAttributes<HTMLDivElement> {
   data: UserOrder | StoreOrder;
   onUpdate?: () => void;
+  updating?: boolean;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ data, onUpdate, ...rest }) => {
+const OrderCard: React.FC<OrderCardProps> = ({
+  data,
+  onUpdate,
+  updating,
+  ...rest
+}) => {
   const [order, setOrder] = useState(data);
   const { className, ...props } = rest;
-  const { mutateAsync: cancelOrder } = api.orders.cancelOrder.useMutation({
-    onError: (err) => {
-      toast.error(err.message);
-    },
-    onSuccess: (response) => {
-      setOrder(response);
-    },
-  });
+  const { mutateAsync: cancelOrder, isLoading: cancellingOrder } =
+    api.orders.cancelOrder.useMutation({
+      onError: (err) => {
+        toast.error(err.message);
+      },
+      onSuccess: (response) => {
+        setOrder(response);
+      },
+    });
   return (
     <Card {...props} className={cn("lg:flex", className)}>
       <div className="flex-1">
@@ -134,36 +141,44 @@ const OrderCard: React.FC<OrderCardProps> = ({ data, onUpdate, ...rest }) => {
           </div>
         </div>
         <div className="flex w-full gap-4">
-          <Button
-            disabled={order.orderStatus !== "in_progress"}
-            size="form"
-            variant="outline"
-            onClick={() => onUpdate && onUpdate()}
-          >
-            Update
-          </Button>
-          <Button
-            onClick={() => {
-              try {
-                void cancelOrder({
-                  type: "store" in order ? "user" : "store",
-                  id: order.id,
-                  storeId: order.storeId,
-                  paymentId: order.paymentId,
-                });
-              } catch (error) {
-                return;
-              }
-            }}
-            disabled={order.orderStatus !== "in_progress"}
-            size="form"
-          >
-            {order.orderStatus === "cancelled"
-              ? "Cancelled"
-              : order.orderStatus === "shipped"
-              ? "Shipped"
-              : "Cancel"}
-          </Button>
+          {updating ? (
+            <ButtonLoading size="form" variant="outline" />
+          ) : (
+            <Button
+              disabled={order.orderStatus !== "in_progress"}
+              size="form"
+              variant="outline"
+              onClick={() => onUpdate && onUpdate()}
+            >
+              {"store" in order ? "Update" : "Mark as Shipped"}
+            </Button>
+          )}
+          {cancellingOrder ? (
+            <ButtonLoading size="form" />
+          ) : (
+            <Button
+              onClick={() => {
+                try {
+                  void cancelOrder({
+                    type: "store" in order ? "user" : "store",
+                    id: order.id,
+                    storeId: order.storeId,
+                    paymentId: order.paymentId,
+                  });
+                } catch (error) {
+                  return;
+                }
+              }}
+              disabled={order.orderStatus !== "in_progress"}
+              size="form"
+            >
+              {order.orderStatus === "cancelled"
+                ? "Cancelled"
+                : order.orderStatus === "shipped"
+                ? "Shipped"
+                : "Cancel"}
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

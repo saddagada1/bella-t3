@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { Search } from "lucide-react";
 import { type FormHTMLAttributes } from "react";
 import { cn } from "~/utils/shadcn/utils";
+import { useRouter } from "next/router";
 
 type SearchInputProps = FormHTMLAttributes<HTMLFormElement>;
 
@@ -14,6 +15,7 @@ const formSchema = z.object({
 });
 
 const SearchInput: React.FC<SearchInputProps> = ({ ...FormHTMLAtrributes }) => {
+  const router = useRouter();
   const { className, ...props } = FormHTMLAtrributes;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -23,7 +25,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ ...FormHTMLAtrributes }) => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    return;
+    void router.push(`/search?q=${values.query}`);
   };
 
   return (
