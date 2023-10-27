@@ -80,6 +80,7 @@ model OrderItem {
 enum OrderStatus {
     in_progress
     shipped
+    received
     cancelled
 }
 
@@ -270,6 +271,8 @@ model Store {
     products          Product[]
     bags              Bag[]
     orders            Order[]
+    ordersCount       Int         @default(0)
+    totalRevenue      Int         @default(0)
     createdAt         DateTime    @default(now())
     updatedAt         DateTime    @updatedAt
 

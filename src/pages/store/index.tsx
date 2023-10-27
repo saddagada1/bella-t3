@@ -79,13 +79,25 @@ const Store: NextPage = ({}) => {
           </div>
         </Title>
         <div className="flex flex-col gap-4 lg:basis-1/4 lg:flex-row">
-          <StatsCard className="basis-1/3" title="Items Selling" data={`${0}`}>
+          <StatsCard
+            className="basis-1/3"
+            title="Items Selling"
+            data={`${store.productsCount}`}
+          >
             <Package className="h-6 w-6" />
           </StatsCard>
-          <StatsCard className="basis-1/3" title="Items Sold" data={`${0}`}>
+          <StatsCard
+            className="basis-1/3"
+            title="Items Sold"
+            data={`${store.ordersCount}`}
+          >
             <PackageCheck className="h-6 w-6" />
           </StatsCard>
-          <StatsCard className="basis-1/3" title="Total Sales" data={`$${0}`}>
+          <StatsCard
+            className="basis-1/3"
+            title="Total Sales"
+            data={`$${store.totalRevenue}`}
+          >
             <DollarSign className="h-6 w-6" />
           </StatsCard>
         </div>

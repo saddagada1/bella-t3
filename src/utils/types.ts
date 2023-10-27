@@ -69,6 +69,7 @@ export interface SimplifiedProduct {
   images: string[];
   name: string;
   price: number;
+  sold: boolean;
 }
 
 export interface SimplifiedUser {

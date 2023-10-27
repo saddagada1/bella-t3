@@ -31,6 +31,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
         toast.error(err.message);
       },
       onSuccess: (response) => {
+        toast.success("Order Has Been Cancelled");
         setOrder(response);
       },
     });
@@ -70,7 +71,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
                 <p
                   className={cn(
                     "capitalize",
-                    order.paymentStatus === "failed" && "text-destructive",
+                    (order.paymentStatus === "failed" ||
+                      order.paymentStatus === "refunded") &&
+                      "text-destructive",
                     order.paymentStatus === "completed" && "text-green-600",
                   )}
                 >
@@ -83,7 +86,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
                   className={cn(
                     "capitalize",
                     order.orderStatus === "cancelled" && "text-destructive",
-                    order.orderStatus === "shipped" && "text-green-600",
+                    (order.orderStatus === "shipped" ||
+                      order.orderStatus === "received") &&
+                      "text-green-600",
                   )}
                 >
                   {order.orderStatus.replace("_", " ")}
@@ -145,12 +150,22 @@ const OrderCard: React.FC<OrderCardProps> = ({
             <ButtonLoading size="form" variant="outline" />
           ) : (
             <Button
-              disabled={order.orderStatus !== "in_progress"}
+              disabled={
+                "store" in order
+                  ? order.orderStatus === "received"
+                  : order.orderStatus !== "in_progress"
+              }
               size="form"
               variant="outline"
               onClick={() => onUpdate && onUpdate()}
             >
-              {"store" in order ? "Update" : "Mark as Shipped"}
+              {"store" in order
+                ? (order.orderStatus === "shipped" ||
+                    order.orderStatus === "received") &&
+                  order.paymentStatus === "completed"
+                  ? "Mark as Received"
+                  : "Update"
+                : "Mark as Shipped"}
             </Button>
           )}
           {cancellingOrder ? (

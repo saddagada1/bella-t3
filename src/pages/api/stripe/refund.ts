@@ -56,6 +56,17 @@ const refund = async (req: NextApiRequest, res: NextApiResponse) => {
               userId: true,
             },
           },
+          orderItems: {
+            select: {
+              productId: true,
+            },
+          },
+        },
+      });
+      await prisma.product.updateMany({
+        where: { id: { in: order.orderItems.map((item) => item.productId) } },
+        data: {
+          sold: false,
         },
       });
       await prisma.notification.create({

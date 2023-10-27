@@ -34,6 +34,7 @@ export const usersRouter = createTRPCRouter({
         store: {
           select: {
             productsCount: true,
+            ordersCount: true,
           },
         },
         updatedAt: true,
@@ -86,6 +87,7 @@ export const usersRouter = createTRPCRouter({
           store: {
             select: {
               productsCount: true,
+              ordersCount: true,
             },
           },
         },

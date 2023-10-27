@@ -268,7 +268,20 @@ const Product: NextPage = ({}) => {
               )}
             </p>
           </div>
-          <AddProductToBagForm id={product.id} />
+          {product.sold ? (
+            <div className="mb-6 lg:w-3/4">
+              <Button
+                className="w-1/2 lg:w-1/3"
+                disabled
+                type="submit"
+                size="form"
+              >
+                Sold
+              </Button>
+            </div>
+          ) : (
+            <AddProductToBagForm id={product.id} />
+          )}
           <Accordion
             className="border-t border-input"
             type="single"

@@ -34,7 +34,7 @@ const Orders: NextPage = ({}) => {
         toast.error(err.message);
       },
       onSuccess: () => {
-        toast.success("Updated Your Order");
+        toast.success("Marked Order As Shipped");
         router.reload();
       },
     });

@@ -28,6 +28,16 @@ const Orders: NextPage = ({}) => {
       getNextPageParam: (page) => page.next,
     },
   );
+  const { mutateAsync: updateOrder, isLoading: updatingOrder } =
+    api.orders.markOrderAsReceived.useMutation({
+      onError: (err) => {
+        toast.error(err.message);
+      },
+      onSuccess: () => {
+        toast.success("Order Marked As Received");
+        router.reload();
+      },
+    });
   const data = orders?.pages[page];
 
   const handleNext = async () => {
@@ -74,9 +84,18 @@ const Orders: NextPage = ({}) => {
                 <OrderCard
                   key={index}
                   data={order}
-                  onUpdate={() =>
-                    void router.push(`/orders/update?id=${order.id}`)
-                  }
+                  onUpdate={() => {
+                    if (order.orderStatus === "shipped") {
+                      try {
+                        void updateOrder({ id: order.id });
+                      } catch (error) {
+                        return;
+                      }
+                    } else {
+                      void router.push(`/orders/update?id=${order.id}`);
+                    }
+                  }}
+                  updating={updatingOrder}
                 />
               ))}
             </div>

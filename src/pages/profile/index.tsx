@@ -91,7 +91,7 @@ const Profile: NextPage = ({}) => {
           <div className="flex flex-1 flex-col justify-center gap-10">
             <UserProfileStats
               products={profile.store?.productsCount}
-              sales={0}
+              sales={profile.store?.ordersCount}
               followers={profile.followersCount}
               following={profile.followingCount}
             />

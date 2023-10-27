@@ -52,7 +52,7 @@ const Search: NextPage = ({}) => {
           <>
             <FormTitle>Users</FormTitle>
             {search.users.length > 0 ? (
-              <div className="grid grid-cols-3 gap-2 lg:grid-cols-8 lg:gap-4">
+              <div className="grid grid-cols-3 gap-2 lg:grid-cols-6 lg:gap-4">
                 {search.users.map((user, index) => (
                   <div
                     key={index}

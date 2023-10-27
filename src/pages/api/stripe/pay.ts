@@ -115,6 +115,11 @@ const pay = async (req: NextApiRequest, res: NextApiResponse) => {
             },
           });
 
+          await prisma.store.update({
+            where: { id: reference.storeId },
+            data: { ordersCount: { increment: 1 } },
+          });
+
           await prisma.product.updateMany({
             where: { id: { in: bag.bagItems.map((item) => item.productId) } },
             data: {

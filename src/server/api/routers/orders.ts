@@ -267,6 +267,28 @@ export const ordersRouter = createTRPCRouter({
       }
     }),
 
+  markOrderAsReceived: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.order.update({
+          where: { id: input.id, userId: ctx.session.user.id },
+          data: {
+            orderStatus: "received",
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable To Update Order",
+        });
+      }
+    }),
+
   getUserOrders: protectedProcedure
     .input(
       z.object({

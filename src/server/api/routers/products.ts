@@ -34,7 +34,7 @@ export const productsRouter = createTRPCRouter({
         ...product
       } = input;
       try {
-        if (!ctx.session.user.verified || !ctx.session.user.canSell) {
+        if (!ctx.session.user.canSell) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "Unable To Create Product",
@@ -102,7 +102,12 @@ export const productsRouter = createTRPCRouter({
               },
             },
           });
-
+          await ctx.prisma.store.update({
+            where: { id: store.id },
+            data: {
+              productsCount: { increment: 1 },
+            },
+          });
           return res;
         });
 
@@ -181,6 +186,7 @@ export const productsRouter = createTRPCRouter({
           images: true,
           price: true,
           name: true,
+          sold: true,
         },
         skip: input.skip,
         take: input.limit + 1,
@@ -217,6 +223,7 @@ export const productsRouter = createTRPCRouter({
           images: true,
           price: true,
           name: true,
+          sold: true,
         },
         skip: input.skip,
         take: input.limit + 1,
@@ -252,6 +259,7 @@ export const productsRouter = createTRPCRouter({
           images: true,
           price: true,
           name: true,
+          sold: true,
         },
         skip: input.skip,
         take: input.limit + 1,

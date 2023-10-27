@@ -1,28 +1,36 @@
-# Create T3 App
+# izzy(Bella)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+An ecommerce marketplace inspired by Depop and Grailed.
 
-## What's next? How do I make an app with this?
+Includes authentication, account and store setup, creating products, search, filters, product sort, shopping carts, checkout, payment, shipping, orders and refunds.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+It is still incomplete in some parts, such as the forgot password functionality and reviews/ratings, but the core functionality is complete and should work without a hitch.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+If you would like an account to test it out:
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+    Seller Account:
+    - bella@acme.ca
+    - password
 
-## Learn More
+    Buyer Account:
+    - saivamsi@acme.ca
+    - password
+    - At checkout enter 4242 4242 4242 4242 as your card number and fill the rest however you like. This will result in a successful transaction. For more scenarios please visit https://stripe.com/docs/testing.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Or feel free to create your own accounts and post/buy some products; and let me know if you run into anything.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Stack:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- Typescript
+- TailwindCSS
+- NextJS
+- tRPC
+- Prisma
+- PostgresSQL
+- Redis
+- NextAuth
+- S3
+- Stripe
+- Resend
 
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+![Izzy](IMG_1525.jpg)

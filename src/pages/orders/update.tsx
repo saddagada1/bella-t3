@@ -128,7 +128,7 @@ const UpdateOrder: NextPage = ({}) => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        <div className="w-full lg:flex lg:justify-end lg:pt-4">
+        <div className="w-full pt-4 lg:flex lg:justify-end">
           {updatingOrder ? (
             <ButtonLoading disabled size="form" className="lg:w-1/5" />
           ) : (

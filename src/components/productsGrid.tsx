@@ -24,7 +24,7 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
     <div
       {...props}
       className={cn(
-        "grid auto-rows-fr grid-cols-3 gap-2 lg:grid-cols-8 lg:gap-4",
+        "grid auto-rows-fr grid-cols-3 gap-2 lg:grid-cols-6 lg:gap-4",
         className,
       )}
     >
@@ -37,7 +37,7 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
               ref={imageContainer}
               key={index}
               href={`/products/${product.id}`}
-              className="font-semibold"
+              className="relative font-semibold"
             >
               <SafeImage
                 url={
@@ -57,6 +57,11 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
                 onMouseLeave={() => setHover("")}
                 className="aspect-square overflow-hidden rounded-2xl lg:mb-2 lg:rounded-3xl"
               />
+              {product.sold && (
+                <p className="absolute left-6 top-4 rounded-full bg-destructive px-4 py-1 text-background">
+                  SOLD
+                </p>
+              )}
               <p className="mb-1 hidden truncate text-lg leading-tight lg:block">
                 {product.name}
               </p>
