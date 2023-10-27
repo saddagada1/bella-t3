@@ -132,6 +132,7 @@ export const searchRouter = createTRPCRouter({
             images: true,
             price: true,
             name: true,
+            sold: true,
           },
         });
         return {
