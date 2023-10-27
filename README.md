@@ -8,14 +8,16 @@ It is still incomplete in some parts, such as the forgot password functionality 
 
 If you would like an account to test it out:
 
-    Seller Account:
-    - bella@acme.ca
-    - password
+Seller Account:
 
-    Buyer Account:
-    - saivamsi@acme.ca
-    - password
-    - At checkout enter 4242 4242 4242 4242 as your card number and fill the rest however you like. This will result in a successful transaction. For more scenarios please visit https://stripe.com/docs/testing.
+- bella@acme.ca
+- password
+
+Buyer Account:
+
+- saivamsi@acme.ca
+- password
+- At checkout enter 4242 4242 4242 4242 as your card number and fill the rest however you like. This will result in a successful transaction. For more scenarios please visit https://stripe.com/docs/testing.
 
 Or feel free to create your own accounts and post/buy some products; and let me know if you run into anything.
 

@@ -152,7 +152,8 @@ const OrderCard: React.FC<OrderCardProps> = ({
             <Button
               disabled={
                 "store" in order
-                  ? order.orderStatus === "received"
+                  ? order.orderStatus === "received" ||
+                    order.orderStatus === "cancelled"
                   : order.orderStatus !== "in_progress"
               }
               size="form"
