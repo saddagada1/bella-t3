@@ -39,7 +39,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             `/products/${"productId" in item ? item.productId : item.id}`,
           )
         }
-        className="aspect-square cursor-pointer overflow-hidden rounded-xl lg:rounded-2xl"
+        className="cursor-pointer overflow-hidden rounded-xl pt-[100%] lg:rounded-2xl"
       />
       <div className="grid h-full flex-1 grid-cols-6 grid-rows-2 font-sans">
         <div className="col-span-6 leading-tight">

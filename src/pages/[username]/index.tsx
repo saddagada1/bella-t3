@@ -195,7 +195,7 @@ const User: NextPage = ({}) => {
             }
             alt={user.username}
             width={width > lgBreakpoint ? 200 : 125}
-            className="aspect-square shrink-0 overflow-hidden rounded-full"
+            className="shrink-0 overflow-hidden rounded-full"
           />
           <div className="flex flex-1 flex-col justify-center gap-10">
             <UserProfileStats

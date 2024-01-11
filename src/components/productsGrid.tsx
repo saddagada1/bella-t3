@@ -55,7 +55,7 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
                 square
                 onMouseEnter={() => setHover(product.id)}
                 onMouseLeave={() => setHover("")}
-                className="aspect-square overflow-hidden rounded-2xl lg:mb-2 lg:rounded-3xl"
+                className="overflow-hidden rounded-2xl pt-[100%] lg:mb-2 lg:rounded-3xl"
               />
               {product.sold && (
                 <p className="absolute left-6 top-4 rounded-full bg-destructive px-4 py-1 text-background">

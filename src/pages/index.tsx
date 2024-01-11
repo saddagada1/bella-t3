@@ -44,7 +44,7 @@ const Home = () => {
       <main className="flex flex-1 flex-col px-4 pb-4 lg:px-2 lg:py-8">
         <SearchInput className="my-2 block lg:hidden" />
         <section className="lg:flex lg:gap-4">
-          <div className="relative mt-2 flex aspect-video w-full items-end overflow-hidden rounded-2xl p-4 text-background will-change-transform lg:flex-1 lg:rounded-3xl">
+          <div className="relative mt-2 flex w-full items-end overflow-hidden rounded-2xl p-4 pt-[26.25%] text-background will-change-transform lg:flex-1 lg:rounded-3xl">
             <video
               autoPlay
               loop
@@ -60,7 +60,7 @@ const Home = () => {
             <Disc3 className="absolute right-4 top-4 h-8 w-8 animate-[spin_4s_linear_infinite]" />
           </div>
           <div className="mt-2 flex gap-2 lg:flex-1 lg:gap-4">
-            <div className="relative aspect-video flex-1 overflow-hidden rounded-2xl lg:rounded-3xl">
+            <div className="relative flex-1 overflow-hidden rounded-2xl pt-[26.25%] lg:rounded-3xl">
               <Image
                 unoptimized
                 priority

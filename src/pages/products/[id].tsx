@@ -210,7 +210,7 @@ const Product: NextPage = ({}) => {
                   url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + image}
                   alt={`Product image ${index + 1}`}
                   width={width}
-                  className="aspect-square overflow-hidden lg:rounded-3xl"
+                  className="overflow-hidden pt-[100%] lg:rounded-3xl"
                   square
                   priority
                 />
