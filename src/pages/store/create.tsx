@@ -17,10 +17,11 @@ const CreateStore: NextPage = ({}) => {
       <Head>
         <title>Bella - Create Store</title>
       </Head>
-      <main className="flex flex-1 flex-col px-6 py-4 lg:items-center lg:px-0 lg:py-8">
+      <main className="p flex flex-1 flex-col items-center justify-center">
         <AddressForm
           title="Create Store"
           buttonLabel="Create"
+          className="w-full max-w-[600px]"
           onFormSubmit={async (values) => {
             try {
               const response = await createStore(values);

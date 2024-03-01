@@ -23,10 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       {...props}
-      className={cn(
-        "flex items-center gap-4 rounded-2xl border p-2 lg:rounded-3xl",
-        className,
-      )}
+      className={cn("flex items-center gap-4 border p-2", className)}
     >
       <SafeImage
         url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + item.images[0]}
@@ -39,7 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             `/products/${"productId" in item ? item.productId : item.id}`,
           )
         }
-        className="aspect-square cursor-pointer overflow-hidden rounded-xl lg:rounded-2xl"
+        className="aspect-square cursor-pointer overflow-hidden"
       />
       <div className="grid h-full flex-1 grid-cols-6 grid-rows-2 font-sans">
         <div className="col-span-6 leading-tight">

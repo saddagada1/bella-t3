@@ -12,6 +12,7 @@ import {
 
 import { cn } from "~/utils/shadcn/utils";
 import { Label } from "~/components/ui/label";
+import Link from "next/link";
 
 const Form = FormProvider;
 
@@ -166,10 +167,10 @@ const FormLink = React.forwardRef<
   React.AnchorHTMLAttributes<HTMLAnchorElement>
 >(({ className, href, ...props }, ref) => {
   return (
-    <a
+    <Link
       ref={ref}
-      href={href}
-      className={cn("w-full font-mono text-xs uppercase underline", className)}
+      href={href ?? "/"}
+      className={cn("font-mono text-xs uppercase underline", className)}
       {...props}
     />
   );

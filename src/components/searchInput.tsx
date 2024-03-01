@@ -34,7 +34,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ ...FormHTMLAtrributes }) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={form.handleSubmit(onSubmit)}
         {...props}
-        className={cn("col-span-3 hidden lg:block", className)}
+        className={cn("col-span-3", className)}
       >
         <FormField
           control={form.control}
@@ -43,12 +43,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ ...FormHTMLAtrributes }) => {
             <FormItem className="flex items-center space-y-0">
               <FormControl>
                 <>
-                  <div className="mr-2 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center bg-foreground text-background">
                     <Search className="h-4 w-4" />
                   </div>
                   <Input
                     placeholder="Search for items, designers, styles..."
                     {...field}
+                    className="focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
                   />
                 </>
               </FormControl>

@@ -44,14 +44,14 @@ const Search: NextPage = ({}) => {
         <title>Bella - Search</title>
       </Head>
       <main className="relative flex flex-1 flex-col gap-6 px-6 pb-6 lg:px-0 lg:pt-6">
-        <SearchInput className="my-2 block lg:hidden" />
-
-        {fetchingSearch ? (
+        <SearchInput className="my-2" />
+        {fetchingSearch &&
+        !!(router.query.q && typeof router.query.q === "string") ? (
           <LoadingView />
         ) : (
           <>
             <FormTitle>Users</FormTitle>
-            {search.users.length > 0 ? (
+            {search && search.users.length > 0 ? (
               <div className="grid grid-cols-3 gap-2 lg:grid-cols-6 lg:gap-4">
                 {search.users.map((user, index) => (
                   <div
@@ -81,7 +81,7 @@ const Search: NextPage = ({}) => {
               </NoContent>
             )}
             <FormTitle>Products</FormTitle>
-            {search.products.length > 0 ? (
+            {search && search.products.length > 0 ? (
               <ProductsGrid products={search.products} />
             ) : (
               <NoContent className="my-12 text-center">
