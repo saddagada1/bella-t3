@@ -69,7 +69,7 @@ const Orders: NextPage = ({}) => {
       <Head>
         <title>Bella - Orders</title>
       </Head>
-      <main className="flex-1 px-6 py-4 lg:px-0 lg:py-8">
+      <main className="p flex flex-1 flex-col lg:px-0">
         <Title title="Orders" className="mb-4 w-full" />
         {data && data.items.length > 0 ? (
           <Pagination

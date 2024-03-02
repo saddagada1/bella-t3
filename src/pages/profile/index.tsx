@@ -60,16 +60,16 @@ const Profile: NextPage = ({}) => {
       <Head>
         <title>Bella - Your Profile</title>
       </Head>
-      <main className="flex-1 px-4 pt-2 lg:px-0 lg:py-8">
+      <main className="p flex-1 lg:px-0">
         <Title title={profile.name ?? profile.username} className="mb-4">
           <div className="flex w-fit justify-end gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="link" className="pr-0">
               <Link href="/products/create">
                 <p className="mr-2 hidden lg:block">New Product</p>
                 <ListPlus className="h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="link" className="pr-0">
               <Link href="/profile/settings">
                 <p className="mr-2 hidden lg:block">Edit Profile</p>
                 <Settings className="h-5 w-5" />

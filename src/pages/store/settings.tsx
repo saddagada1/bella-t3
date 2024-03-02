@@ -64,9 +64,9 @@ const StoreSettings: NextPage = ({}) => {
       <Head>
         <title>Bella - Store Settings</title>
       </Head>
-      <main className="flex flex-1 flex-col px-6 py-4 lg:px-0 lg:py-8">
-        <FormTitle>Payments</FormTitle>
-        <div className="mb-8 mt-4 lg:w-1/4">
+      <main className="p flex flex-1 flex-col items-center justify-center">
+        <FormTitle className="w-full max-w-[600px]">Payments</FormTitle>
+        <div className="mb-8 mt-4 w-full max-w-[600px]">
           {store.stripeSetupStatus === "not_started" ? (
             <Button asChild variant="secondary" size="form">
               <Link href={accountLink ?? "#"}>
@@ -98,6 +98,7 @@ const StoreSettings: NextPage = ({}) => {
         </div>
         <AddressForm
           title="Billing Address"
+          className="w-full max-w-[600px]"
           defaultValues={{
             firstName: store.firstName,
             lastName: store.lastName,

@@ -154,7 +154,7 @@ const User: NextPage = ({}) => {
       <Head>
         <title>Bella - {user.name ?? user.username}&apos;s Profile</title>
       </Head>
-      <main className="flex-1 px-4 pt-2 lg:px-0 lg:py-8">
+      <main className="p flex-1 lg:px-0">
         <Title title={user.name ?? user.username} className="mb-4">
           <div className="flex w-fit justify-end gap-2">
             <Button
@@ -171,6 +171,7 @@ const User: NextPage = ({}) => {
                 }
               }}
               variant={followed ? "outline" : "default"}
+              className="pr-0"
             >
               {followed ? (
                 <>

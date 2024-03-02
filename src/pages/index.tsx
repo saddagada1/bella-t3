@@ -24,11 +24,7 @@ const Home = () => {
     },
   );
 
-  if (fetchingProducts) {
-    return <LoadingView />;
-  }
-
-  if (!products || productsError) {
+  if (!fetchingProducts && (!products || productsError)) {
     toast.error("Something Went Wrong");
     return <ErrorView />;
   }
@@ -52,18 +48,22 @@ const Home = () => {
             embrace your own unique style.
           </h1>
         </section>
-        <section className="mt-4 w-full flex-1">
-          <ScrollPagination
-            onClickNext={() => void fetchNextPage()}
-            hasNext={!!hasNextPage}
-            fetchingNext={fetchingNext}
-            className="h-full"
-          >
-            <ProductsGrid
-              products={products.pages.flatMap((page) => page.items)}
-            />
-          </ScrollPagination>
-        </section>
+        {fetchingProducts ? (
+          <LoadingView className="mt-20 flex-1" />
+        ) : (
+          <section className="mt-4 w-full flex-1">
+            <ScrollPagination
+              onClickNext={() => void fetchNextPage()}
+              hasNext={!!hasNextPage}
+              fetchingNext={fetchingNext}
+              className="h-full"
+            >
+              <ProductsGrid
+                products={products.pages.flatMap((page) => page.items)}
+              />
+            </ScrollPagination>
+          </section>
+        )}
       </main>
     </>
   );

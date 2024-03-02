@@ -55,22 +55,22 @@ const Store: NextPage = ({}) => {
       <Head>
         <title>Bella - Store</title>
       </Head>
-      <main className="flex flex-1 flex-col gap-4 px-6 py-4 lg:px-0 lg:py-8">
+      <main className="p flex flex-1 flex-col gap-4 lg:px-0">
         <Title title="Store">
           <div className="flex w-fit justify-end gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="link" className="pr-0">
               <Link href="/products/create">
                 <p className="mr-2 hidden lg:block">New Product</p>
                 <ListPlus className="h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="link" className="pr-0">
               <Link href="/store/orders">
                 <p className="mr-2 hidden lg:block">View Orders</p>
                 <StoreIcon className="h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="link" className="pr-0">
               <Link href="/store/settings">
                 <p className="mr-2 hidden lg:block">Edit Store</p>
                 <Settings className="h-5 w-5" />

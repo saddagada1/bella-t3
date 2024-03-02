@@ -80,6 +80,39 @@ const SideMenu: React.FC = () => {
             Browse Inventory
           </h2>
           <Accordion type="single" collapsible>
+            <AccordionItem value="unisex">
+              <AccordionTrigger className="!text-sm uppercase">
+                Unisex
+              </AccordionTrigger>
+              <AccordionContent>
+                {departments
+                  .find((department) => department.name === "Men")
+                  ?.categories.map((category, index) => (
+                    <Button
+                      onClick={() => setIsOpen(false)}
+                      asChild
+                      variant="link"
+                      key={index}
+                      className="pr-0"
+                    >
+                      <Link
+                        className="w-full justify-between"
+                        href={{
+                          pathname: "/products",
+                          query: {
+                            filters: JSON.stringify(
+                              presetFilters.unisex[category.name.toLowerCase()],
+                            ),
+                          },
+                        }}
+                      >
+                        {category.name}
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ))}
+              </AccordionContent>
+            </AccordionItem>
             <AccordionItem value="menswear">
               <AccordionTrigger className="!text-sm uppercase">
                 Menswear
@@ -101,7 +134,7 @@ const SideMenu: React.FC = () => {
                           pathname: "/products",
                           query: {
                             filters: JSON.stringify(
-                              presetFilters.unisex[category.name.toLowerCase()],
+                              presetFilters.men[category.name.toLowerCase()],
                             ),
                           },
                         }}
@@ -134,7 +167,7 @@ const SideMenu: React.FC = () => {
                           pathname: "/products",
                           query: {
                             filters: JSON.stringify(
-                              presetFilters.unisex[category.name.toLowerCase()],
+                              presetFilters.women[category.name.toLowerCase()],
                             ),
                           },
                         }}
@@ -266,7 +299,42 @@ const Navbar: React.FC = () => {
         <div className="hidden items-center lg:flex">
           <HoverCard openDelay={100} closeDelay={100}>
             <HoverCardTrigger asChild>
-              <Button variant="link" asChild>
+              <Button variant="link" asChild className="pr-0">
+                <p className="cursor-pointer">
+                  Unisex
+                  <ChevronDown className="ml-2 h-5 w-5" />
+                </p>
+              </Button>
+            </HoverCardTrigger>
+            <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
+              {departments
+                .find((department) => department.name === "Unisex")
+                ?.categories.map((category, index) => (
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="justify-start"
+                    key={index}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/products",
+                        query: {
+                          filters: JSON.stringify(
+                            presetFilters.unisex[category.name.toLowerCase()],
+                          ),
+                        },
+                      }}
+                    >
+                      {category.name}
+                    </Link>
+                  </Button>
+                ))}
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={100} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <Button variant="link" asChild className="pr-0">
                 <p className="cursor-pointer">
                   Menswear
                   <ChevronDown className="ml-2 h-5 w-5" />
@@ -301,7 +369,7 @@ const Navbar: React.FC = () => {
           </HoverCard>
           <HoverCard openDelay={100} closeDelay={100}>
             <HoverCardTrigger asChild>
-              <Button variant="link" asChild>
+              <Button variant="link" asChild className="pr-0">
                 <p className="cursor-pointer">
                   Womenswear
                   <ChevronDown className="ml-2 h-5 w-5" />
@@ -334,54 +402,6 @@ const Navbar: React.FC = () => {
                 ))}
             </HoverCardContent>
           </HoverCard>
-          <HoverCard openDelay={100} closeDelay={100}>
-            <HoverCardTrigger asChild>
-              <Button variant="link" asChild>
-                <p className="cursor-pointer">
-                  Footwear
-                  <ChevronDown className="ml-2 h-5 w-5" />
-                </p>
-              </Button>
-            </HoverCardTrigger>
-            <HoverCardContent className="grid w-fit auto-rows-fr grid-cols-2 gap-2">
-              <Button asChild variant="ghost" className="justify-start">
-                <Link
-                  href={{
-                    pathname: "/products",
-                    query: {
-                      filters: JSON.stringify(presetFilters.footwear.unisex),
-                    },
-                  }}
-                >
-                  Unisex
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" className="justify-start">
-                <Link
-                  href={{
-                    pathname: "/products",
-                    query: {
-                      filters: JSON.stringify(presetFilters.footwear.men),
-                    },
-                  }}
-                >
-                  Men
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" className="justify-start">
-                <Link
-                  href={{
-                    pathname: "/products",
-                    query: {
-                      filters: JSON.stringify(presetFilters.footwear.women),
-                    },
-                  }}
-                >
-                  Women
-                </Link>
-              </Button>
-            </HoverCardContent>
-          </HoverCard>
           <Button variant="link" asChild>
             <Link href="/search">Search</Link>
           </Button>
@@ -389,10 +409,10 @@ const Navbar: React.FC = () => {
         <div className="flex justify-end gap-2 lg:col-start-6">
           {sessionStatus === "unauthenticated" ? (
             <>
-              <Button asChild variant="link">
+              <Button asChild variant="link" className="pr-0">
                 <Link href="/sign-up">Sign Up</Link>
               </Button>
-              <Button asChild variant="link">
+              <Button asChild variant="link" className="lg:pr-0">
                 <Link href="/login">Login</Link>
               </Button>
             </>
@@ -400,7 +420,11 @@ const Navbar: React.FC = () => {
             <>
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
-                  <Button className="hidden lg:flex" asChild variant="link">
+                  <Button
+                    className="hidden pr-0 lg:flex"
+                    asChild
+                    variant="link"
+                  >
                     <p className="cursor-pointer">
                       Notifications({notifications?.items.length ?? 0})
                       <ChevronDown className="ml-2 h-5 w-5" />
@@ -431,7 +455,11 @@ const Navbar: React.FC = () => {
               </HoverCard>
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
-                  <Button className="hidden lg:flex" asChild variant="link">
+                  <Button
+                    className="hidden pr-0 lg:flex"
+                    asChild
+                    variant="link"
+                  >
                     <p className="cursor-pointer">
                       Profile
                       <ChevronDown className="ml-2 h-5 w-5" />
@@ -440,20 +468,20 @@ const Navbar: React.FC = () => {
                 </HoverCardTrigger>
                 <HoverCardContent className="flex w-fit flex-col gap-4">
                   <Button asChild variant="ghost" className="justify-start">
+                    <Link href="/profile">View Profile</Link>
+                  </Button>
+                  <Button asChild variant="ghost" className="justify-start">
                     <Link href="/store">Store</Link>
                   </Button>
                   <Button asChild variant="ghost" className="justify-start">
                     <Link href="/orders">Orders</Link>
-                  </Button>
-                  <Button asChild variant="ghost" className="justify-start">
-                    <Link href="/profile">View Profile</Link>
                   </Button>
                   <Button
                     onClick={() => void signOut()}
                     variant="ghost"
                     className="justify-start hover:bg-destructive hover:text-background"
                   >
-                    Sign Out
+                    Logout
                   </Button>
                 </HoverCardContent>
               </HoverCard>

@@ -84,7 +84,7 @@ const Combobox: React.FC<ComboboxProps> = ({
           {values.map((val, index) => (
             <p
               key={index}
-              className="flex items-center rounded bg-accent px-2 py-1 text-xs font-medium text-accent-foreground"
+              className="flex items-center bg-accent px-2 py-1 text-xs font-medium text-accent-foreground"
             >
               {val.label}
               <span
@@ -130,7 +130,7 @@ const Combobox: React.FC<ComboboxProps> = ({
         <PopoverContent
           style={{ width }}
           className={cn(
-            "overflow-hidden rounded-2xl p-0 lg:rounded-3xl",
+            "overflow-hidden p-0",
             noSearch ? "h-[175px]" : "h-[200px]",
           )}
         >
@@ -153,7 +153,6 @@ const Combobox: React.FC<ComboboxProps> = ({
             <CommandGroup className="no-scrollbar overflow-y-scroll">
               {filteredData?.map((item, index) => (
                 <CommandItem
-                  className={cn(noSearch && "rounded-xl lg:rounded-2xl")}
                   disabled={
                     enabledItems
                       ? enabledItems.some(
