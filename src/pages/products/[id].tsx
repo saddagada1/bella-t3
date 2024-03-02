@@ -25,7 +25,10 @@ import { useMemo } from "react";
 import { cn } from "~/utils/shadcn/utils";
 import { useSession } from "next-auth/react";
 
-const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
+const AddProductToBagForm: React.FC<{ id: string; sold: boolean }> = ({
+  id,
+  sold,
+}) => {
   const router = useRouter();
   const { status: sessionStatus } = useSession();
   const t3 = api.useContext();
@@ -92,7 +95,11 @@ const AddProductToBagForm: React.FC<{ id: string }> = ({ id }) => {
         className="mb-6 flex items-center justify-between gap-8 lg:w-3/4"
       >
         <div className="w-1/2 lg:w-1/3">
-          {form.formState.isSubmitting ? (
+          {sold ? (
+            <Button disabled type="submit" variant="destructive" size="form">
+              Sold
+            </Button>
+          ) : form.formState.isSubmitting ? (
             <ButtonLoading disabled size="form" />
           ) : inBag ? (
             <Button disabled type="submit" size="form">
@@ -280,7 +287,7 @@ const Product: NextPage = ({}) => {
               </Button>
             </div>
           ) : (
-            <AddProductToBagForm id={product.id} />
+            <AddProductToBagForm id={product.id} sold={product.sold} />
           )}
           <Accordion
             className="border-t border-input"
