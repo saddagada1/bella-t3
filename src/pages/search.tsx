@@ -67,7 +67,7 @@ const Search: NextPage = ({}) => {
                       }
                       alt={user.username}
                       width={width}
-                      className="aspect-square shrink-0 overflow-hidden rounded-full"
+                      className="shrink-0 overflow-hidden rounded-full"
                     />
                     <p className="mb-1 truncate text-sm font-semibold leading-tight lg:text-lg">
                       {user.username}
