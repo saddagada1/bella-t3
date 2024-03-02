@@ -210,7 +210,7 @@ const Product: NextPage = ({}) => {
                   url={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + image}
                   alt={`Product image ${index + 1}`}
                   width={width}
-                  className="overflow-hidden pt-[100%] lg:rounded-3xl"
+                  className="overflow-hidden pt-[100%]"
                   square
                   priority
                 />
@@ -247,12 +247,12 @@ const Product: NextPage = ({}) => {
             </Button>
           )}
         </div>
-        <div className="w-full p-6 font-semibold lg:p-0">
-          <h1 className="mb-4 text-2xl leading-tight lg:text-3xl">
+        <div className="w-full p-6 font-bold lg:p-0">
+          <h1 className="mb-4 text-2xl uppercase leading-tight lg:text-3xl">
             {product.name}
           </h1>
           <div className="mb-6 border-l-2 border-destructive pl-2 lg:w-2/3">
-            <p className="border-l-2 border-destructive pl-2 text-sm font-medium text-muted-foreground lg:text-base">
+            <p className="border-l-2 border-destructive pl-2 text-sm font-medium uppercase text-muted-foreground lg:text-base">
               {`${product.department.name},  ${product.category.name}, ${product.subcategory}, Size ${product.size}, ${product.condition} Condition`}
             </p>
           </div>

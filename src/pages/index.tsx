@@ -52,7 +52,7 @@ const Home = () => {
         {fetchingProducts ? (
           <LoadingView className="mt-20 flex-1" />
         ) : (
-          <section className="mt-4 w-full flex-1">
+          <section className="my-4 w-full flex-1">
             <ScrollPagination
               onClickNext={() => void fetchNextPage()}
               hasNext={!!hasNextPage}

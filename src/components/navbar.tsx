@@ -407,7 +407,8 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
         <div className="flex justify-end gap-2 lg:col-start-6">
-          {sessionStatus === "unauthenticated" ? (
+          {sessionStatus === "loading" ? null : sessionStatus ===
+            "unauthenticated" ? (
             <>
               <Button asChild variant="link" className="pr-0">
                 <Link href="/sign-up">Sign Up</Link>
