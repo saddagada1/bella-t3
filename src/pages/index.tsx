@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import ScrollPagination from "~/components/scrollPagination";
 import ProductsGrid from "~/components/productsGrid";
 import LoadingView from "~/components/loadingView";
+import { env } from "~/env.mjs";
 
 const Home = () => {
   const {
@@ -41,7 +42,7 @@ const Home = () => {
             loop
             muted
             playsInline
-            src="/media/videos/hero.mp4"
+            src={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + "hero.mp4"}
             className="aspect-video w-full object-cover"
           />
           <h1 className="p absolute bottom-0 right-0 z-10 text-3xl font-bold uppercase text-background">
