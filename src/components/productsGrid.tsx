@@ -30,14 +30,14 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
     >
       {loading
         ? Array.from({ length: products?.length ?? 9 }).map((_, index) => (
-            <Skeleton key={index} className="aspect-square rounded-2xl" />
+            <Skeleton key={index} className="aspect-square" />
           ))
         : products?.map((product, index) => (
             <Link
               ref={imageContainer}
               key={index}
               href={`/products/${product.id}`}
-              className="relative font-semibold"
+              className="relative font-bold uppercase"
             >
               <SafeImage
                 url={
@@ -55,10 +55,10 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
                 square
                 onMouseEnter={() => setHover(product.id)}
                 onMouseLeave={() => setHover("")}
-                className="overflow-hidden rounded-2xl pt-[100%] lg:mb-2 lg:rounded-3xl"
+                className="aspect-square overflow-hidden border lg:mb-2"
               />
               {product.sold && (
-                <p className="absolute left-6 top-4 rounded-full bg-destructive px-4 py-1 text-background">
+                <p className="absolute left-4 top-4 bg-destructive px-4 py-1 text-background">
                   SOLD
                 </p>
               )}

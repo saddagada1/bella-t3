@@ -15,6 +15,8 @@ module.exports = {
         np: "0rem",
       },
       screens: {
+        lg: "980px",
+        xl: "1300px",
         "2xl": "1400px",
       },
     },
@@ -23,7 +25,6 @@ module.exports = {
         xxs: "0.65rem",
       },
       fontFamily: {
-        display: ["Neopixel"],
         sans: ["var(--font-sans)", "ui-sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace"],
       },

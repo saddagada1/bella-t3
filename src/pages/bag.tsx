@@ -85,7 +85,7 @@ const Bag: NextPage = ({}) => {
       <Head>
         <title>Bella - Bag</title>
       </Head>
-      <main className="flex flex-1 flex-col px-6 py-4 lg:items-center lg:px-0 lg:py-8">
+      <main className="p flex flex-1 flex-col lg:px-0">
         <Title title="Bag" className="mb-4 w-full" />
         {bags.length > 0 ? (
           <div className="w-full space-y-4">

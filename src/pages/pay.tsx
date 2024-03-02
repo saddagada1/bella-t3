@@ -81,9 +81,9 @@ const Pay: NextPage = ({}) => {
       <Head>
         <title>Bella - Pay</title>
       </Head>
-      <main className="flex-1 px-6 py-4 lg:px-0 lg:py-8">
+      <main className="p flex flex-1 flex-col items-center lg:px-0">
         <Title title="Pay" className="mb-4 w-full" />
-        <div className="flex flex-col-reverse gap-4 lg:flex-row-reverse">
+        <div className="flex w-full flex-col-reverse gap-4 lg:flex-row-reverse">
           <Card className="h-fit lg:basis-1/3">
             <CardHeader>
               <FormTitle className="mb-4">Shipping Address</FormTitle>

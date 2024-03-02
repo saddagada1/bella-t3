@@ -1,7 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Disc3 } from "lucide-react";
-import SearchInput from "~/components/searchInput";
 import { api } from "~/utils/api";
 import { paginationLimit } from "~/utils/constants";
 import ErrorView from "~/components/errorView";
@@ -9,6 +6,7 @@ import { toast } from "sonner";
 import ScrollPagination from "~/components/scrollPagination";
 import ProductsGrid from "~/components/productsGrid";
 import LoadingView from "~/components/loadingView";
+import { env } from "~/env.mjs";
 
 const Home = () => {
   const {
@@ -27,11 +25,7 @@ const Home = () => {
     },
   );
 
-  if (fetchingProducts) {
-    return <LoadingView />;
-  }
-
-  if (!products || productsError) {
+  if (!fetchingProducts && (!products || productsError)) {
     toast.error("Something Went Wrong");
     return <ErrorView />;
   }
@@ -41,71 +35,36 @@ const Home = () => {
       <Head>
         <title>Bella - Home</title>
       </Head>
-      <main className="flex flex-1 flex-col px-4 pb-4 lg:px-2 lg:py-8">
-        <SearchInput className="my-2 block lg:hidden" />
-        <section className="lg:flex lg:gap-4">
-          <div className="relative mt-2 flex w-full items-end overflow-hidden rounded-2xl p-4 pt-[26.25%] text-background will-change-transform lg:flex-1 lg:rounded-3xl">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute bottom-0 left-0 h-full w-full object-cover"
+      <main>
+        <section className="relative">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            src={env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN + "hero.mp4"}
+            className="aspect-video w-full object-cover"
+          />
+          <h1 className="p absolute bottom-0 right-0 z-10 text-3xl font-bold uppercase text-background">
+            embrace your own unique style.
+          </h1>
+        </section>
+        {fetchingProducts ? (
+          <LoadingView className="mt-20 flex-1" />
+        ) : (
+          <section className="mt-4 w-full flex-1">
+            <ScrollPagination
+              onClickNext={() => void fetchNextPage()}
+              hasNext={!!hasNextPage}
+              fetchingNext={fetchingNext}
+              className="h-full"
             >
-              <source src="/media/videos/hero.mp4" />
-            </video>
-            <h1 className="z-10 font-mono text-3xl uppercase leading-none">
-              embrace your own unique style.
-            </h1>
-            <Disc3 className="absolute right-4 top-4 h-8 w-8 animate-[spin_4s_linear_infinite]" />
-          </div>
-          <div className="mt-2 flex gap-2 lg:flex-1 lg:gap-4">
-            <div className="relative flex-1 overflow-hidden rounded-2xl pt-[26.25%] lg:rounded-3xl">
-              <Image
-                unoptimized
-                priority
-                src="/media/images/hero1.jpeg"
-                alt="hero-1"
-                fill
-                className="object-cover saturate-[.45]"
+              <ProductsGrid
+                products={products.pages.flatMap((page) => page.items)}
               />
-            </div>
-            <div className="flex flex-1 gap-2 lg:flex-col lg:gap-4">
-              <div className="relative basis-1/2 overflow-hidden rounded-2xl lg:rounded-3xl">
-                <Image
-                  unoptimized
-                  priority
-                  src="/media/images/hero2.jpeg"
-                  alt="hero-2"
-                  fill
-                  className="object-cover saturate-[.45]"
-                />
-              </div>
-              <div className="relative basis-1/2 overflow-hidden rounded-2xl lg:rounded-3xl">
-                <Image
-                  unoptimized
-                  priority
-                  src="/media/images/hero3.jpeg"
-                  alt="hero-3"
-                  fill
-                  className="object-cover saturate-[.45]"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="mt-4 w-full flex-1">
-          <ScrollPagination
-            onClickNext={() => void fetchNextPage()}
-            hasNext={!!hasNextPage}
-            fetchingNext={fetchingNext}
-            className="h-full"
-          >
-            <ProductsGrid
-              products={products.pages.flatMap((page) => page.items)}
-            />
-          </ScrollPagination>
-        </section>
+            </ScrollPagination>
+          </section>
+        )}
       </main>
     </>
   );

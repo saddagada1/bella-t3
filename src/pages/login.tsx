@@ -20,7 +20,6 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
-import Image from "next/image";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid Email" }),
@@ -76,7 +75,7 @@ const LoginForm: React.FC = () => {
       <form
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 text-right"
+        className="w-full max-w-[600px] space-y-8 text-right"
       >
         <FormTitle>Login</FormTitle>
         <FormField
@@ -128,24 +127,12 @@ const Login: NextPage = ({}) => {
       <Head>
         <title>Bella - Login</title>
       </Head>
-      <main className="flex flex-1 flex-col justify-center px-6 text-center lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-0">
-        <div className="relative hidden h-5/6 w-1/2 overflow-hidden rounded-3xl lg:block">
-          <Image
-            priority
-            unoptimized
-            src="/media/images/login.jpg"
-            alt="login-hero"
-            fill
-            className="object-cover"
-          />
-        </div>
-        <div className="lg:w-1/3">
-          <LoginForm />
-          <OAuthButtons />
-          <FormLink href="/sign-up">
-            Don&apos;t have an account? Sign Up!
-          </FormLink>
-        </div>
+      <main className="p flex flex-1 flex-col items-center justify-center">
+        <LoginForm />
+        <OAuthButtons />
+        <FormLink href="/sign-up">
+          Don&apos;t have an account? Sign Up!
+        </FormLink>
       </main>
     </>
   );

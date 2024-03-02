@@ -529,7 +529,7 @@ const Settings: NextPage = ({}) => {
       <Head>
         <title>Bella - Edit Profile</title>
       </Head>
-      <main className="flex-1 space-y-8 px-6 py-4 lg:px-0 lg:py-8">
+      <main className="p flex-1 space-y-8 lg:px-0">
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-32">
           <PictureForm image={profile.image} />
           <GeneralForm username={profile.username} email={profile.email} />

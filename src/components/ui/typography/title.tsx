@@ -22,7 +22,7 @@ const Title = React.forwardRef<HTMLDivElement, TitleProps>(
           onClick={() => router.back()}
           className="arrow h-9 w-9 bg-foreground transition-transform will-change-transform hover:-scale-x-100 lg:h-11 lg:w-11"
         />
-        <h1 className="mr-4 w-full truncate font-mono text-3xl font-semibold uppercase lg:text-4xl">
+        <h1 className="mr-4 w-full truncate font-mono text-3xl font-bold uppercase lg:text-4xl">
           {title}
         </h1>
         {children}
